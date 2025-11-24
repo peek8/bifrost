@@ -1,0 +1,151 @@
+@startuml Bifrost
+title Bifrost Operator
+
+[*] --> Initializing
+
+state Initializing {
+    [*] --> InitializingContext
+
+    InitializingContext: do / InitializeContext
+    InitializingContext -[bold]-> LoadingSubject
+
+    LoadingSubject: do / LoadSubject
+    LoadingSubject --> SubjectDoesNotExist: [ IsK8sNotFoundError ]
+    LoadingSubject: do / SetFlag(SubjectLoaded)
+    LoadingSubject -[bold]-> [*]
+
+    SubjectDoesNotExist : do / ClearError
+    SubjectDoesNotExist --> [*]
+}
+
+Initializing --> [*] : [IsError]
+Initializing --> [*] : [ MissingLoadedFlag ]
+Initializing --> GeneratingAlloyComponents
+
+
+state GeneratingAlloyComponents #PaleGreen
+GeneratingAlloyComponents: do / GenerateAlloyStorage
+GeneratingAlloyComponents: do / GenerateAlloyRbac
+GeneratingAlloyComponents: do / GenerateAlloyConfig
+GeneratingAlloyComponents: do / GenerateAlloyWorkloads
+GeneratingAlloyComponents: do / SetWave(Alloy)
+GeneratingAlloyComponents -[dotted]-> Closing: [ IsError ]
+GeneratingAlloyComponents -[bold]-> SyncingWave
+
+state GeneratingLokiComponents #PaleGreen
+GeneratingLokiComponents: do / GenerateLokiStorage
+GeneratingLokiComponents: do / GenerateLokiConfig
+GeneratingLokiComponents: do / GenerateLokiWorkloads
+GeneratingLokiComponents: do / SetNextWave(Loki)
+GeneratingLokiComponents -[dotted]-> Closing: [ IsError ]
+GeneratingLokiComponents -[bold]-> SyncingWave
+
+state GeneratingGrafanaComponents #PaleGreen
+GeneratingGrafanaComponents: do / GenerateGrafanaStorage
+GeneratingGrafanaComponents: do / GenerateGrafanaConfig
+GeneratingGrafanaComponents: do / GenerateGrafanaWorkloads
+GeneratingGrafanaComponents: do / SetWave(Grafana)
+GeneratingGrafanaComponents -[dotted]-> Closing: [ IsError ]
+GeneratingGrafanaComponents -[bold]-> SyncingWave
+
+
+state SyncingWave {
+    [*]--> InitializingWave
+
+    InitializingWave: do / InitializeWave
+    InitializingWave -[bold]-> PickingNextComponent
+
+    PickingNextComponent: do / PickNextComponent
+    PickingNextComponent --> ProcessingComponent: [ MoreComponents ]
+    PickingNextComponent -[bold]-> [*]
+
+    state ProcessingComponent {
+        [*] --> LoadingComponent
+
+        LoadingComponent: do / LoadComponent
+        LoadingComponent --> CreatingComponent: [ ComponentDoesNotExist ]
+        LoadingComponent --> UpdatingComponent: [ ComponentDiffers ]
+        LoadingComponent -[bold]-> [*]
+
+        CreatingComponent: do / CreateComponent
+        CreatingComponent: do / SetFlag(NeedsReconcile)
+        CreatingComponent -[bold]-> [*]
+
+        UpdatingComponent: do / UpdateComponent
+        UpdatingComponent: do / SetFlag(NeedsReconcile)
+        UpdatingComponent -[bold]-> [*]
+    }
+    ProcessingComponent -[bold]-> PickingNextComponent: / DoneWithComponent
+}
+SyncingWave --> GeneratingLokiComponents: [ WasAlloyWave ]
+SyncingWave --> GeneratingGrafanaComponents: [ WasLokiWave ]
+SyncingWave -[bold]-> BuildingStatus
+SyncingWave -[dotted]-> Closing: [ IsError ]
+
+
+state BuildingStatus {
+    [*] --> CollectingStatusInformation
+
+    CollectingStatusInformation: do / CollectCommonStatusInformation
+    CollectingStatusInformation: do / CollectStatusInformation
+    CollectingStatusInformation --> EditMande: [ HasFlag(NeedsReconcile) ]
+    CollectingStatusInformation --> ItemsNotReady: [ ! ObservedComponentsAreReady ]
+    CollectingStatusInformation --> NotDone: [ ! WasWave(Done) ]
+    CollectingStatusInformation -[bold]-> AllDone
+
+    EditMande: do / SetPhase(Pending/Updated)
+    EditMande -[bold]-> [*]
+
+    ItemsNotReady: do / SetPhase(Pending/ComponentNotHealthy)
+    ItemsNotReady -[bold]-> [*]
+
+    NotDone: do / SetPhase(Pending)
+    NotDone -[bold]-> [*]
+
+    AllDone: do / SetPhase(Ready)
+    AllDone -[bold]-> [*]
+}
+
+BuildingStatus -[bold]-> Closing
+
+
+
+state Closing {
+    [*] --> ClosingInitial
+
+    ClosingInitial --> HandlingError: [ IsError ]
+    ClosingInitial --> ImmediateReconcile: [ HasFlag(NeedsReconcile) ]
+    ClosingInitial -[bold]-> HandlingSuccess
+
+    ImmediateReconcile: do / ReconcileIn(1ms)
+    ImmediateReconcile -[bold]-> HandlingSuccess
+
+    HandlingSuccess: do / ClearCondition(Failed)
+    HandlingSuccess --> UpdatingStatus: [ Dirty ]
+    HandlingSuccess -[bold]-> SendingEvent
+
+    HandlingError: do / RaiseCondition(Failed)
+    HandlingError: do / SetPhase(Error)
+    HandlingError --> UpdatingStatus: [ Dirty ]
+    HandlingError -[bold]-> SendingEvent
+
+    UpdatingStatus: do / UpdateStatus
+    UpdatingStatus --> ClearUnnecessaryErrors: error [ IsError(K8s:Conflict) ]
+    UpdatingStatus -[bold]-> SendingEvent
+
+    ClearUnnecessaryErrors: do / ClearError
+    ClearUnnecessaryErrors -[bold]-> SendingEvent
+
+    SendingEvent: do / SendEvent
+    SendingEvent --> PlanDefaultReconcile: [ ReconcileNotPlanned ]
+    SendingEvent -[bold]-> [*]
+
+    PlanDefaultReconcile: do / ReconcileIn(5m)
+    PlanDefaultReconcile -[bold]-> [*]
+}
+
+Closing -[dotted]-> [*]: error
+Closing -[bold]-> [*]
+
+
+@enduml

@@ -49,8 +49,11 @@ endif
 # Set the Operator SDK version to use. By default, what is installed on the system is used.
 # This is useful for CI or a project to utilize a specific version of the operator-sdk toolkit.
 OPERATOR_SDK_VERSION ?= v1.42.0
+PLANTUML_VERSION = 1.2025.10
+
+JAVA?=$(shell which java)
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+IMG ?= bifrost:latest
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -360,3 +363,19 @@ catalog-build: opm ## Build a catalog image.
 .PHONY: catalog-push
 catalog-push: ## Push a catalog image.
 	$(MAKE) docker-push IMG=$(CATALOG_IMG)
+
+bin/plantuml-$(PLANTUML_VERSION).jar: PLANTUML_URL=https://github.com/plantuml/plantuml/releases/download/v$(PLANTUML_VERSION)/plantuml-$(PLANTUML_VERSION).jar
+bin/plantuml-$(PLANTUML_VERSION).jar: | bin
+	curl --location --output $@ --fail $(PLANTUML_URL)
+
+ifneq ($(JAVA),)
+# SVG files depend on the plantuml source and the PlantUML jar file
+uml/%.svg: uml/%.plantuml bin/plantuml-$(PLANTUML_VERSION).jar
+	$(JAVA) -jar bin/plantuml-$(PLANTUML_VERSION).jar -tsvg $<
+else
+uml/%.svg:
+	@echo "java is not available in the path, skipping $@"
+endif
+
+bin:
+	mkdir bin

@@ -1,0 +1,9 @@
+apiVersion: bifrost.peek8.io/v1alpha1
+kind: LogSpace
+metadata:
+  labels:
+    app.kubernetes.io/name: bifrost
+    app.kubernetes.io/managed-by: kustomize
+  name: logspace-sample
+spec:
+  # TODO(user): Add fields here

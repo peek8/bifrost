@@ -10,7 +10,7 @@ state Initializing {
     InitializingContext -[bold]-> LoadingSubject
 
     LoadingSubject: do / LoadSubject
-    LoadingSubject --> SubjectDoesNotExist: [ IsK8sNotFoundError ]
+    LoadingSubject --> SubjectDoesNotExist: [ IsError(K8s:NotFound) ]
     LoadingSubject: do / SetFlag(SubjectLoaded)
     LoadingSubject -[bold]-> [*]
 
@@ -18,8 +18,8 @@ state Initializing {
     SubjectDoesNotExist --> [*]
 }
 
-Initializing --> [*] : [IsError]
-Initializing --> [*] : [ MissingLoadedFlag ]
+Initializing --> [*] : [ IsError ]
+Initializing --> [*] : [ MissingFlag(SubjectLoaded) ]
 Initializing --> GeneratingAlloyComponents
 
 
@@ -36,7 +36,7 @@ state GeneratingLokiComponents #PaleGreen
 GeneratingLokiComponents: do / GenerateLokiStorage
 GeneratingLokiComponents: do / GenerateLokiConfig
 GeneratingLokiComponents: do / GenerateLokiWorkloads
-GeneratingLokiComponents: do / SetNextWave(Loki)
+GeneratingLokiComponents: do / SetWave(Loki)
 GeneratingLokiComponents -[dotted]-> Closing: [ IsError ]
 GeneratingLokiComponents -[bold]-> SyncingWave
 
@@ -73,14 +73,18 @@ state SyncingWave {
 
         UpdatingComponent: do / UpdateComponent
         UpdatingComponent: do / SetFlag(NeedsReconcile)
+        UpdatingComponent: do / DoneWithComponent
         UpdatingComponent -[bold]-> [*]
     }
-    ProcessingComponent -[bold]-> PickingNextComponent: / DoneWithComponent
+    ProcessingComponent -[bold]-> PickingNextComponent
 }
-SyncingWave --> GeneratingLokiComponents: [ WasAlloyWave ]
-SyncingWave --> GeneratingGrafanaComponents: [ WasLokiWave ]
-SyncingWave -[bold]-> BuildingStatus
+SyncingWave --> GeneratingLokiComponents: [ WasWave(Alloy) ]
+SyncingWave --> GeneratingGrafanaComponents: [ WasWave(Loki) ]
+SyncingWave -[bold]-> EndingWave
 SyncingWave -[dotted]-> Closing: [ IsError ]
+
+EndingWave: do / SetWave(Done)
+EndingWave -[bold]-> BuildingStatus
 
 
 state BuildingStatus {
@@ -89,9 +93,9 @@ state BuildingStatus {
     CollectingStatusInformation: do / CollectCommonStatusInformation
     CollectingStatusInformation: do / CollectStatusInformation
     CollectingStatusInformation --> EditMande: [ HasFlag(NeedsReconcile) ]
-    CollectingStatusInformation --> ItemsNotReady: [ ! ObservedComponentsAreReady ]
-    CollectingStatusInformation --> NotDone: [ ! WasWave(Done) ]
-    CollectingStatusInformation -[bold]-> AllDone
+    CollectingStatusInformation --> ItemsNotReady: [ ObservedComponentsNotReady ]
+    CollectingStatusInformation --> NotDone: [ WaveNotDone ]
+    CollectingStatusInformation -[bold]-> AllComponentsDone
 
     EditMande: do / SetPhase(Pending/Updated)
     EditMande -[bold]-> [*]
@@ -102,8 +106,8 @@ state BuildingStatus {
     NotDone: do / SetPhase(Pending)
     NotDone -[bold]-> [*]
 
-    AllDone: do / SetPhase(Ready)
-    AllDone -[bold]-> [*]
+    AllComponentsDone: do / SetPhase(Ready)
+    AllComponentsDone -[bold]-> [*]
 }
 
 BuildingStatus -[bold]-> Closing
@@ -117,7 +121,7 @@ state Closing {
     ClosingInitial --> ImmediateReconcile: [ HasFlag(NeedsReconcile) ]
     ClosingInitial -[bold]-> HandlingSuccess
 
-    ImmediateReconcile: do / ReconcileIn(1ms)
+    ImmediateReconcile: do / ReconcileIn(50ms)
     ImmediateReconcile -[bold]-> HandlingSuccess
 
     HandlingSuccess: do / ClearCondition(Failed)
@@ -144,7 +148,6 @@ state Closing {
     PlanDefaultReconcile -[bold]-> [*]
 }
 
-Closing -[dotted]-> [*]: error
 Closing -[bold]-> [*]
 
 

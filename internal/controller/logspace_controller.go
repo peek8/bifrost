@@ -18,19 +18,25 @@ package controller
 
 import (
 	"context"
+	"fmt"
 
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/go-logr/logr"
 	bifrostv1alpha1 "github.com/peek8/bifrost/api/v1alpha1"
+	"github.com/peek8/bifrost/internal/controller/fsm"
 )
 
 // LogSpaceReconciler reconciles a LogSpace object
 type LogSpaceReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Log       logr.Logger
+	Scheme    *runtime.Scheme
+	Recorder  record.EventRecorder
+	Namespace string
 }
 
 // +kubebuilder:rbac:groups=bifrost.peek8.io,resources=logspaces,verbs=get;list;watch;create;update;patch;delete
@@ -47,11 +53,33 @@ type LogSpaceReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.21.0/pkg/reconcile
 func (r *LogSpaceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = logf.FromContext(ctx)
+	// Ignore requests for other namespaces, if specified
+	if r.Namespace != "" && req.Namespace != r.Namespace {
+		return ctrl.Result{}, nil
+	}
 
-	// TODO(user): your logic here
+	//initialize and run the state machine
+	// Initialize the state machine
+	stateMachine := fsm.New()
 
-	return ctrl.Result{}, nil
+	// Configure the state machine context
+	stateMachine.Context = &fsm.Context{
+		Logger:   r.Log,
+		Client:   r.Client,
+		Ctx:      ctx,
+		Recorder: r.Recorder,
+	}
+	// Set the resource name in the extended state
+	stateMachine.ExtendedState.ResourceName = req.NamespacedName
+
+	// Run the state machine
+	res, err := stateMachine.Run()
+
+	if err != nil {
+		return res, fmt.Errorf("%w", err)
+	}
+
+	return res, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.

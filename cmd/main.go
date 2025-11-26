@@ -203,8 +203,10 @@ func main() {
 	}
 
 	if err := (&controller.LogSpaceReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:   mgr.GetClient(),
+		Scheme:   mgr.GetScheme(),
+		Log:      ctrl.Log.WithName("controllers").WithName("logspace"),
+		Recorder: mgr.GetEventRecorderFor("logspace"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "LogSpace")
 		os.Exit(1)

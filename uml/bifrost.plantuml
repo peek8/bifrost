@@ -24,27 +24,27 @@ Initializing --> GeneratingAlloyComponents
 
 
 state GeneratingAlloyComponents #PaleGreen
+GeneratingAlloyComponents: do / SetWave(Alloy)
 GeneratingAlloyComponents: do / GenerateAlloyStorage
 GeneratingAlloyComponents: do / GenerateAlloyRbac
 GeneratingAlloyComponents: do / GenerateAlloyConfig
 GeneratingAlloyComponents: do / GenerateAlloyWorkloads
-GeneratingAlloyComponents: do / SetWave(Alloy)
 GeneratingAlloyComponents -[dotted]-> Closing: [ IsError ]
 GeneratingAlloyComponents -[bold]-> SyncingWave
 
 state GeneratingLokiComponents #PaleGreen
+GeneratingLokiComponents: do / SetWave(Loki)
 GeneratingLokiComponents: do / GenerateLokiStorage
 GeneratingLokiComponents: do / GenerateLokiConfig
 GeneratingLokiComponents: do / GenerateLokiWorkloads
-GeneratingLokiComponents: do / SetWave(Loki)
 GeneratingLokiComponents -[dotted]-> Closing: [ IsError ]
 GeneratingLokiComponents -[bold]-> SyncingWave
 
 state GeneratingGrafanaComponents #PaleGreen
+GeneratingGrafanaComponents: do / SetWave(Grafana)
 GeneratingGrafanaComponents: do / GenerateGrafanaStorage
 GeneratingGrafanaComponents: do / GenerateGrafanaConfig
 GeneratingGrafanaComponents: do / GenerateGrafanaWorkloads
-GeneratingGrafanaComponents: do / SetWave(Grafana)
 GeneratingGrafanaComponents -[dotted]-> Closing: [ IsError ]
 GeneratingGrafanaComponents -[bold]-> SyncingWave
 

@@ -331,11 +331,11 @@ func New() *BifrostOperator {
 
 	fsm.StateConfigs[GeneratingAlloyComponents] = StateConfig{
 		Actions: []Action{
+			{Name: SetWave, Execute: fsm.SetWaveAction, Params: []string{"Alloy"}},
 			{Name: GenerateAlloyStorage, Execute: fsm.GenerateAlloyStorageAction, Params: []string{}},
 			{Name: GenerateAlloyRbac, Execute: fsm.GenerateAlloyRbacAction, Params: []string{}},
 			{Name: GenerateAlloyConfig, Execute: fsm.GenerateAlloyConfigAction, Params: []string{}},
 			{Name: GenerateAlloyWorkloads, Execute: fsm.GenerateAlloyWorkloadsAction, Params: []string{}},
-			{Name: SetWave, Execute: fsm.SetWaveAction, Params: []string{"Alloy"}},
 		},
 		Guards: []Guard{
 			{Name: IsError, Params: []string{}, Check: fsm.IsErrorGuard},
@@ -347,10 +347,10 @@ func New() *BifrostOperator {
 	}
 	fsm.StateConfigs[GeneratingGrafanaComponents] = StateConfig{
 		Actions: []Action{
+			{Name: SetWave, Execute: fsm.SetWaveAction, Params: []string{"Grafana"}},
 			{Name: GenerateGrafanaStorage, Execute: fsm.GenerateGrafanaStorageAction, Params: []string{}},
 			{Name: GenerateGrafanaConfig, Execute: fsm.GenerateGrafanaConfigAction, Params: []string{}},
 			{Name: GenerateGrafanaWorkloads, Execute: fsm.GenerateGrafanaWorkloadsAction, Params: []string{}},
-			{Name: SetWave, Execute: fsm.SetWaveAction, Params: []string{"Grafana"}},
 		},
 		Guards: []Guard{
 			{Name: IsError, Params: []string{}, Check: fsm.IsErrorGuard},
@@ -362,10 +362,10 @@ func New() *BifrostOperator {
 	}
 	fsm.StateConfigs[GeneratingLokiComponents] = StateConfig{
 		Actions: []Action{
+			{Name: SetWave, Execute: fsm.SetWaveAction, Params: []string{"Loki"}},
 			{Name: GenerateLokiStorage, Execute: fsm.GenerateLokiStorageAction, Params: []string{}},
 			{Name: GenerateLokiConfig, Execute: fsm.GenerateLokiConfigAction, Params: []string{}},
 			{Name: GenerateLokiWorkloads, Execute: fsm.GenerateLokiWorkloadsAction, Params: []string{}},
-			{Name: SetWave, Execute: fsm.SetWaveAction, Params: []string{"Loki"}},
 		},
 		Guards: []Guard{
 			{Name: IsError, Params: []string{}, Check: fsm.IsErrorGuard},
@@ -559,7 +559,7 @@ func run(fsm *BifrostOperator, stateConfigs map[StateName]StateConfig, depth int
 			// Reset to the Initial State in case the FSM is run in a loop
 			fsm.CurrentState = InitialState
 
-			return fsm.ExtendedState.Result, fsm.ExtendedState.Error
+			return fsm.ExtendedState.Result, fsm.ExtendedState.LastError
 		}
 
 		config, exists := stateConfigs[fsm.CurrentState]
@@ -579,7 +579,7 @@ func run(fsm *BifrostOperator, stateConfigs map[StateName]StateConfig, depth int
 			_, err := run(fsm, config.Composite.StateConfigs, depth+1)
 			if err != nil {
 				fsm.Context.Logger.Error(err, "composite state machine failed", "state", fsm.CurrentState)
-				fsm.ExtendedState.Error = err
+				fsm.ExtendedState.LastError = err
 			}
 
 			fsm.Context.Logger.V(1).Info("exiting composite state", "state", parentState)
@@ -589,7 +589,7 @@ func run(fsm *BifrostOperator, stateConfigs map[StateName]StateConfig, depth int
 			err := runAllActions(fsm.Context, fsm.CurrentState, config.Actions)
 			if err != nil {
 				fsm.Context.Logger.Error(err, "action failed", "state", fsm.CurrentState)
-				fsm.ExtendedState.Error = err
+				fsm.ExtendedState.LastError = err
 			}
 		}
 
@@ -597,7 +597,7 @@ func run(fsm *BifrostOperator, stateConfigs map[StateName]StateConfig, depth int
 		nextState, err := runAllGuards(fsm.Context, fsm.CurrentState, config)
 		if err != nil {
 			// Guarded actions will always transition to the FinalState
-			fsm.ExtendedState.Error = err
+			fsm.ExtendedState.LastError = err
 			fsm.CurrentState = FinalState
 		}
 		if nextState != "" {

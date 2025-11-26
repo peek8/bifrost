@@ -10,6 +10,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	bifrostv1alpha1 "github.com/peek8/bifrost/api/v1alpha1"
+	"github.com/peek8/bifrost/internal/components"
 )
 
 // A struct that holds the items needed for the actions to do their work.
@@ -25,8 +26,25 @@ type Context struct {
 // being fetched and read. This should only be modified by actions, while guards
 // should only read the extended state to assess their value.
 type ExtendedState struct {
-	Error        error
+	LastError        error
 	Result       ctrl.Result
 	ResourceName types.NamespacedName
-	Instance     bifrostv1alpha1.LogSpace
+	Instance     *bifrostv1alpha1.LogSpace
+
+	// Waves and componentes
+	// DesiredComponents is a list of objects that we want to create at cluster.
+	DesiredComponents components.Components
+
+	Waves map[string]components.Components
+
+	CurrentWave string
+	// DesiredComponent is the first component from  DesiredComponents
+	DesiredComponent components.Component
+
+	// ActualComponent is the current loaded kubernetes. It is nil if its not created yet.
+	ActualComponent components.Component
+
+	Flags map[string]bool
+
+	Dirty bool
 }

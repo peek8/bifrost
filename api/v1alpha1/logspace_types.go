@@ -109,6 +109,9 @@ type LogSpaceStatus struct {
 	// +optional
 	State string `json:"state,omitempty"`
 
+	//+optional
+	Phase string `json:"phase,omitempty"`
+
 	// ObservedNamespaces lists namespaces the operator selected/observed
 	// +optional
 	ObservedNamespaces []string `json:"observedNamespaces,omitempty"`

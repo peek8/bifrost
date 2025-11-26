@@ -45,14 +45,14 @@ type LokiConfig struct {
 	// It also has a unique build model where all of those microservices exist within the same binary.
 	// For now only valid value is monolithic
 
-	// +optional
-	// +kubebuilder:validation:Enum=monolithic;simpleScalable;microservice
-	// +kubebuilder:default:=monolithic
+	//+optional
+	//+kubebuilder:validation:Enum=monolithic;simpleScalable;microservice
+	//+kubebuilder:default:=monolithic
 	DeploymentMode *string `json:"deploymentMode,omitempty"`
 
 	// Retention policy for logs, e.g. "7d", "30d"
-	// +optional
-	// +kubebuilder:default:=7d
+	//+optional
+	//+kubebuilder:default:="7d"
 	RetentionPeriod *string `json:"retentionPeriod,omitempty"`
 	// Storage Configuration for loki
 	Storage *StorageConfig `json:"storage,omitempty"`
@@ -63,14 +63,14 @@ type LokiConfig struct {
 
 type CollectorSpec struct {
 	// Type of collector. e.g. "grafana-alloy", "fluentbit", "fluentd", Now only grafana-alloy is supported
-	// +kubebuilder:validation:Enum=grafana-alloy;fluentbit;fluentd
-	// +kubebuilder:default:=grafana-alloy
-	// +optional
+	//+kubebuilder:validation:Enum=grafana-alloy;fluentbit;fluentd
+	//+kubebuilder:default:=grafana-alloy
+	//+optional
 	Type string `json:"type,omitempty"`
 
 	// Replicas for collector controller (if applicable).
-	// +kubebuilder:validation:Minimum=1
-	// +optional
+	//+kubebuilder:validation:Minimum=1
+	//+optional
 	Replicas *int32 `json:"replicas,omitempty"`
 
 	// How much storage is needed for collector eg aloy default is 5Gi
@@ -78,7 +78,7 @@ type CollectorSpec struct {
 
 	// PerNamespaceDeployment if true deploys collector per-target-namespace.
 	// If false, operator may choose a cluster-level deployment.
-	// +optional
+	//+optional
 	// PerNamespaceDeployment bool `json:"perNamespaceDeployment,omitempty"`
 }
 
@@ -91,53 +91,53 @@ type LokiSchemaConfig struct {
 	// Loki will use this storage schema for all logs from this date.
 	// For example, if it is set to 2025-01-01, The schema will be used from 1st Jan, 2025
 	// If not set, the current date will be used
-	// +optional
+	//+optional
 	FromDate *string `json:"fromDate,omitempty"`
 
 	// The supported values are `filesystem, s3, gcs, azure` where `filesystem`	store TSDB blocks locally on disk
 	// and others store blocks in cloud object storage.
 	// For now only filesystem is supported
-	// +kubebuilder:validation:Enum=filesystem;s3;gcs;azure
-	// +kubebuilder:default:=filesystem
-	// +optional
+	//+kubebuilder:validation:Enum=filesystem;s3;gcs;azure
+	//+kubebuilder:default:=filesystem
+	//+optional
 	ObjectStore string `json:"objectStore,omitempty"`
 }
 
 // LogSpaceStatus defines the observed state of LogSpace.
 type LogSpaceStatus struct {
 	// State is a high-level state like "Ready", "Reconciling", "Error"
-	// +optional
+	//+optional
 	State string `json:"state,omitempty"`
 
 	//+optional
 	Phase string `json:"phase,omitempty"`
 
 	// ObservedNamespaces lists namespaces the operator selected/observed
-	// +optional
+	//+optional
 	ObservedNamespaces []string `json:"observedNamespaces,omitempty"`
 
 	// Dashboard URLs created in Grafana
-	// +optional
+	//+optional
 	// DashboardURLs []string `json:"dashboardUrls,omitempty"`
 
 	GrafanaEndpoint string `json:"grafanaEndpoint,omitempty"`
 	LokiEndpoint    string `json:"lokiEndpoint,omitempty"`
 
 	// LastError captures last reconciliation error (short message)
-	// +optional
+	//+optional
 	LastError string `json:"lastError,omitempty"`
 
 	// LastUpdated timestamp for status
-	// +optional
+	//+optional
 	LastUpdated *metav1.Time `json:"lastUpdated,omitempty"`
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:subresource:status
-// +kubebuilder:resource:shortName=ls,scope=Namespaced
-// +kubebuilder:printcolumn:name="State",type=string,JSONPath=`.status.state`
-// +kubebuilder:printcolumn:name="Namespaces",type=string,JSONPath=`.status.observedNamespaces`
-// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+//+kubebuilder:object:root=true
+//+kubebuilder:subresource:status
+//+kubebuilder:resource:shortName=ls,scope=Namespaced
+//+kubebuilder:printcolumn:name="State",type=string,JSONPath=`.status.state`
+//+kubebuilder:printcolumn:name="Namespaces",type=string,JSONPath=`.status.observedNamespaces`
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 
 // LogSpace is the Schema for the logspaces API.
 type LogSpace struct {
@@ -148,7 +148,7 @@ type LogSpace struct {
 	Status LogSpaceStatus `json:"status,omitempty"`
 }
 
-// +kubebuilder:object:root=true
+//+kubebuilder:object:root=true
 
 // LogSpaceList contains a list of LogSpace.
 type LogSpaceList struct {

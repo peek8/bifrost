@@ -39,9 +39,15 @@ type LogSpaceReconciler struct {
 	Namespace string
 }
 
-// +kubebuilder:rbac:groups=bifrost.peek8.io,resources=logspaces,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=bifrost.peek8.io,resources=logspaces/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=bifrost.peek8.io,resources=logspaces/finalizers,verbs=update
+//+kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
+//+kubebuilder:rbac:groups="",resources=events,verbs=get;list;create;patch;watch
+//+kubebuilder:rbac:groups=bifrost.peek8.io,resources=logspaces,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=bifrost.peek8.io,resources=logspaces/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=bifrost.peek8.io,resources=logspaces/finalizers,verbs=update
+//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles;rolebindings,verbs=create;update;delete;list;watch;get
+//+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="",resources=secrets;configmaps;persistentvolumeclaims;services;serviceaccounts,verbs=create;update;delete;list;watch;get
+//+kubebuilder:rbac:groups="gateway.networking.k8s.io",resources=httproutes,verbs=create;update;delete;list;watch;get
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

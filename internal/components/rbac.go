@@ -9,6 +9,7 @@
 package components
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiequality "k8s.io/apimachinery/pkg/api/equality"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -36,6 +37,8 @@ func (s *Role) IsReady() (string, string, bool) {
 
 func (s *Role) PropagateLabels(_ map[string]string) {}
 
+// RoleBinding
+
 type RoleBinding struct {
 	rbacv1.RoleBinding
 }
@@ -59,3 +62,26 @@ func (s *RoleBinding) IsReady() (string, string, bool) {
 }
 
 func (s *RoleBinding) PropagateLabels(_ map[string]string) {}
+
+// Service account
+
+type ServiceAccount struct {
+	corev1.ServiceAccount
+}
+
+func (s *ServiceAccount) DeepCopySpecInto(other Component) {
+}
+
+func (s *ServiceAccount) DiffersSemanticallyFrom(other Component) bool {
+	return false
+}
+
+func (s *ServiceAccount) GetClientObject() client.Object {
+	return &s.ServiceAccount
+}
+
+func (s *ServiceAccount) IsReady() (string, string, bool) {
+	return "", "", true
+}
+
+func (s *ServiceAccount) PropagateLabels(_ map[string]string) {}

@@ -26,7 +26,7 @@ type Context struct {
 // being fetched and read. This should only be modified by actions, while guards
 // should only read the extended state to assess their value.
 type ExtendedState struct {
-	LastError        error
+	LastError    error
 	Result       ctrl.Result
 	ResourceName types.NamespacedName
 	Instance     *bifrostv1alpha1.LogSpace
@@ -43,6 +43,9 @@ type ExtendedState struct {
 
 	// ActualComponent is the current loaded kubernetes. It is nil if its not created yet.
 	ActualComponent components.Component
+
+	// ObservedComponents holds all of the objects that were desired and processed
+	ObservedComponents components.Components
 
 	Flags map[string]bool
 

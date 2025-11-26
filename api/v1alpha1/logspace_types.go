@@ -121,7 +121,7 @@ type LogSpaceStatus struct {
 	// DashboardURLs []string `json:"dashboardUrls,omitempty"`
 
 	GrafanaEndpoint string `json:"grafanaEndpoint,omitempty"`
-	LokiEndpoint string `json:"lokiEndpoint,omitempty"`
+	LokiEndpoint    string `json:"lokiEndpoint,omitempty"`
 
 	// LastError captures last reconciliation error (short message)
 	// +optional

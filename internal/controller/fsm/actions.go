@@ -201,7 +201,7 @@ func (fsm *BifrostOperator) ReconcileInAction(params ...string) error {
 
 // +vectorsigma:action:SendEvent
 func (fsm *BifrostOperator) SendEventAction(_ ...string) error {
-
+	//TODO : implement
 	return nil
 }
 
@@ -254,6 +254,13 @@ func (fsm *BifrostOperator) UpdateStatusAction(_ ...string) error {
 
 // +vectorsigma:action:DoneWithComponent
 func (fsm *BifrostOperator) DoneWithComponentAction(_ ...string) error {
-	// TODO: Implement me!
+	if fsm.ExtendedState.ActualComponent != nil {
+		fsm.ExtendedState.ObservedComponents = append(fsm.ExtendedState.ObservedComponents, fsm.ExtendedState.ActualComponent)
+	}
+
+	// no need for actual and desired component
+	fsm.ExtendedState.ActualComponent = nil
+	fsm.ExtendedState.DesiredComponent = nil
+
 	return nil
 }

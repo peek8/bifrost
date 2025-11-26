@@ -56,16 +56,9 @@ const (
 	CollectStatusInformation       ActionName = "CollectStatusInformation"
 	CreateComponent                ActionName = "CreateComponent"
 	DoneWithComponent              ActionName = "DoneWithComponent"
-	GenerateAlloyConfig            ActionName = "GenerateAlloyConfig"
-	GenerateAlloyRbac              ActionName = "GenerateAlloyRbac"
-	GenerateAlloyStorage           ActionName = "GenerateAlloyStorage"
-	GenerateAlloyWorkloads         ActionName = "GenerateAlloyWorkloads"
-	GenerateGrafanaConfig          ActionName = "GenerateGrafanaConfig"
-	GenerateGrafanaStorage         ActionName = "GenerateGrafanaStorage"
-	GenerateGrafanaWorkloads       ActionName = "GenerateGrafanaWorkloads"
-	GenerateLokiConfig             ActionName = "GenerateLokiConfig"
-	GenerateLokiStorage            ActionName = "GenerateLokiStorage"
-	GenerateLokiWorkloads          ActionName = "GenerateLokiWorkloads"
+	GenerateAlloy                  ActionName = "GenerateAlloy"
+	GenerateGrafana                ActionName = "GenerateGrafana"
+	GenerateLoki                   ActionName = "GenerateLoki"
 	InitializeContext              ActionName = "InitializeContext"
 	InitializeWave                 ActionName = "InitializeWave"
 	LoadComponent                  ActionName = "LoadComponent"
@@ -332,10 +325,7 @@ func New() *BifrostOperator {
 	fsm.StateConfigs[GeneratingAlloyComponents] = StateConfig{
 		Actions: []Action{
 			{Name: SetWave, Execute: fsm.SetWaveAction, Params: []string{"Alloy"}},
-			{Name: GenerateAlloyStorage, Execute: fsm.GenerateAlloyStorageAction, Params: []string{}},
-			{Name: GenerateAlloyRbac, Execute: fsm.GenerateAlloyRbacAction, Params: []string{}},
-			{Name: GenerateAlloyConfig, Execute: fsm.GenerateAlloyConfigAction, Params: []string{}},
-			{Name: GenerateAlloyWorkloads, Execute: fsm.GenerateAlloyWorkloadsAction, Params: []string{}},
+			{Name: GenerateAlloy, Execute: fsm.GenerateAlloyAction, Params: []string{}},
 		},
 		Guards: []Guard{
 			{Name: IsError, Params: []string{}, Check: fsm.IsErrorGuard},
@@ -348,9 +338,7 @@ func New() *BifrostOperator {
 	fsm.StateConfigs[GeneratingGrafanaComponents] = StateConfig{
 		Actions: []Action{
 			{Name: SetWave, Execute: fsm.SetWaveAction, Params: []string{"Grafana"}},
-			{Name: GenerateGrafanaStorage, Execute: fsm.GenerateGrafanaStorageAction, Params: []string{}},
-			{Name: GenerateGrafanaConfig, Execute: fsm.GenerateGrafanaConfigAction, Params: []string{}},
-			{Name: GenerateGrafanaWorkloads, Execute: fsm.GenerateGrafanaWorkloadsAction, Params: []string{}},
+			{Name: GenerateGrafana, Execute: fsm.GenerateGrafanaAction, Params: []string{}},
 		},
 		Guards: []Guard{
 			{Name: IsError, Params: []string{}, Check: fsm.IsErrorGuard},
@@ -363,9 +351,7 @@ func New() *BifrostOperator {
 	fsm.StateConfigs[GeneratingLokiComponents] = StateConfig{
 		Actions: []Action{
 			{Name: SetWave, Execute: fsm.SetWaveAction, Params: []string{"Loki"}},
-			{Name: GenerateLokiStorage, Execute: fsm.GenerateLokiStorageAction, Params: []string{}},
-			{Name: GenerateLokiConfig, Execute: fsm.GenerateLokiConfigAction, Params: []string{}},
-			{Name: GenerateLokiWorkloads, Execute: fsm.GenerateLokiWorkloadsAction, Params: []string{}},
+			{Name: GenerateLoki, Execute: fsm.GenerateLokiAction, Params: []string{}},
 		},
 		Guards: []Guard{
 			{Name: IsError, Params: []string{}, Check: fsm.IsErrorGuard},

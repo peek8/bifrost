@@ -231,396 +231,6 @@ func TestBifrostOperator_CreateComponentAction(t *testing.T) {
 	}
 }
 
-// +vectorsigma:action:GenerateAlloyConfig
-func TestBifrostOperator_GenerateAlloyConfigAction(t *testing.T) {
-	type fields struct {
-		context       *fsm.Context
-		currentState  fsm.StateName
-		stateConfigs  map[fsm.StateName]fsm.StateConfig
-		ExtendedState *fsm.ExtendedState
-	}
-
-	type args struct {
-		params []string
-	}
-
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-
-	t.Parallel()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			fsm := &fsm.BifrostOperator{
-				Context:       tt.fields.context,
-				CurrentState:  tt.fields.currentState,
-				StateConfigs:  tt.fields.stateConfigs,
-				ExtendedState: tt.fields.ExtendedState,
-			}
-			if err := fsm.GenerateAlloyConfigAction(tt.args.params...); (err != nil) != tt.wantErr {
-				t.Errorf("BifrostOperator.GenerateAlloyConfigAction() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-// +vectorsigma:action:GenerateAlloyRbac
-func TestBifrostOperator_GenerateAlloyRbacAction(t *testing.T) {
-	type fields struct {
-		context       *fsm.Context
-		currentState  fsm.StateName
-		stateConfigs  map[fsm.StateName]fsm.StateConfig
-		ExtendedState *fsm.ExtendedState
-	}
-
-	type args struct {
-		params []string
-	}
-
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-
-	t.Parallel()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			fsm := &fsm.BifrostOperator{
-				Context:       tt.fields.context,
-				CurrentState:  tt.fields.currentState,
-				StateConfigs:  tt.fields.stateConfigs,
-				ExtendedState: tt.fields.ExtendedState,
-			}
-			if err := fsm.GenerateAlloyRbacAction(tt.args.params...); (err != nil) != tt.wantErr {
-				t.Errorf("BifrostOperator.GenerateAlloyRbacAction() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-// +vectorsigma:action:GenerateAlloyStorage
-func TestBifrostOperator_GenerateAlloyStorageAction(t *testing.T) {
-	type fields struct {
-		context       *fsm.Context
-		currentState  fsm.StateName
-		stateConfigs  map[fsm.StateName]fsm.StateConfig
-		ExtendedState *fsm.ExtendedState
-	}
-
-	type args struct {
-		params []string
-	}
-
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-
-	t.Parallel()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			fsm := &fsm.BifrostOperator{
-				Context:       tt.fields.context,
-				CurrentState:  tt.fields.currentState,
-				StateConfigs:  tt.fields.stateConfigs,
-				ExtendedState: tt.fields.ExtendedState,
-			}
-			if err := fsm.GenerateAlloyStorageAction(tt.args.params...); (err != nil) != tt.wantErr {
-				t.Errorf("BifrostOperator.GenerateAlloyStorageAction() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-// +vectorsigma:action:GenerateAlloyWorkloads
-func TestBifrostOperator_GenerateAlloyWorkloadsAction(t *testing.T) {
-	type fields struct {
-		context       *fsm.Context
-		currentState  fsm.StateName
-		stateConfigs  map[fsm.StateName]fsm.StateConfig
-		ExtendedState *fsm.ExtendedState
-	}
-
-	type args struct {
-		params []string
-	}
-
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-
-	t.Parallel()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			fsm := &fsm.BifrostOperator{
-				Context:       tt.fields.context,
-				CurrentState:  tt.fields.currentState,
-				StateConfigs:  tt.fields.stateConfigs,
-				ExtendedState: tt.fields.ExtendedState,
-			}
-			if err := fsm.GenerateAlloyWorkloadsAction(tt.args.params...); (err != nil) != tt.wantErr {
-				t.Errorf("BifrostOperator.GenerateAlloyWorkloadsAction() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-// +vectorsigma:action:GenerateGrafanaConfig
-func TestBifrostOperator_GenerateGrafanaConfigAction(t *testing.T) {
-	type fields struct {
-		context       *fsm.Context
-		currentState  fsm.StateName
-		stateConfigs  map[fsm.StateName]fsm.StateConfig
-		ExtendedState *fsm.ExtendedState
-	}
-
-	type args struct {
-		params []string
-	}
-
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-
-	t.Parallel()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			fsm := &fsm.BifrostOperator{
-				Context:       tt.fields.context,
-				CurrentState:  tt.fields.currentState,
-				StateConfigs:  tt.fields.stateConfigs,
-				ExtendedState: tt.fields.ExtendedState,
-			}
-			if err := fsm.GenerateGrafanaConfigAction(tt.args.params...); (err != nil) != tt.wantErr {
-				t.Errorf("BifrostOperator.GenerateGrafanaConfigAction() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-// +vectorsigma:action:GenerateGrafanaStorage
-func TestBifrostOperator_GenerateGrafanaStorageAction(t *testing.T) {
-	type fields struct {
-		context       *fsm.Context
-		currentState  fsm.StateName
-		stateConfigs  map[fsm.StateName]fsm.StateConfig
-		ExtendedState *fsm.ExtendedState
-	}
-
-	type args struct {
-		params []string
-	}
-
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-
-	t.Parallel()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			fsm := &fsm.BifrostOperator{
-				Context:       tt.fields.context,
-				CurrentState:  tt.fields.currentState,
-				StateConfigs:  tt.fields.stateConfigs,
-				ExtendedState: tt.fields.ExtendedState,
-			}
-			if err := fsm.GenerateGrafanaStorageAction(tt.args.params...); (err != nil) != tt.wantErr {
-				t.Errorf("BifrostOperator.GenerateGrafanaStorageAction() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-// +vectorsigma:action:GenerateGrafanaWorkloads
-func TestBifrostOperator_GenerateGrafanaWorkloadsAction(t *testing.T) {
-	type fields struct {
-		context       *fsm.Context
-		currentState  fsm.StateName
-		stateConfigs  map[fsm.StateName]fsm.StateConfig
-		ExtendedState *fsm.ExtendedState
-	}
-
-	type args struct {
-		params []string
-	}
-
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-
-	t.Parallel()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			fsm := &fsm.BifrostOperator{
-				Context:       tt.fields.context,
-				CurrentState:  tt.fields.currentState,
-				StateConfigs:  tt.fields.stateConfigs,
-				ExtendedState: tt.fields.ExtendedState,
-			}
-			if err := fsm.GenerateGrafanaWorkloadsAction(tt.args.params...); (err != nil) != tt.wantErr {
-				t.Errorf("BifrostOperator.GenerateGrafanaWorkloadsAction() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-// +vectorsigma:action:GenerateLokiConfig
-func TestBifrostOperator_GenerateLokiConfigAction(t *testing.T) {
-	type fields struct {
-		context       *fsm.Context
-		currentState  fsm.StateName
-		stateConfigs  map[fsm.StateName]fsm.StateConfig
-		ExtendedState *fsm.ExtendedState
-	}
-
-	type args struct {
-		params []string
-	}
-
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-
-	t.Parallel()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			fsm := &fsm.BifrostOperator{
-				Context:       tt.fields.context,
-				CurrentState:  tt.fields.currentState,
-				StateConfigs:  tt.fields.stateConfigs,
-				ExtendedState: tt.fields.ExtendedState,
-			}
-			if err := fsm.GenerateLokiConfigAction(tt.args.params...); (err != nil) != tt.wantErr {
-				t.Errorf("BifrostOperator.GenerateLokiConfigAction() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-// +vectorsigma:action:GenerateLokiStorage
-func TestBifrostOperator_GenerateLokiStorageAction(t *testing.T) {
-	type fields struct {
-		context       *fsm.Context
-		currentState  fsm.StateName
-		stateConfigs  map[fsm.StateName]fsm.StateConfig
-		ExtendedState *fsm.ExtendedState
-	}
-
-	type args struct {
-		params []string
-	}
-
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-
-	t.Parallel()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			fsm := &fsm.BifrostOperator{
-				Context:       tt.fields.context,
-				CurrentState:  tt.fields.currentState,
-				StateConfigs:  tt.fields.stateConfigs,
-				ExtendedState: tt.fields.ExtendedState,
-			}
-			if err := fsm.GenerateLokiStorageAction(tt.args.params...); (err != nil) != tt.wantErr {
-				t.Errorf("BifrostOperator.GenerateLokiStorageAction() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-// +vectorsigma:action:GenerateLokiWorkloads
-func TestBifrostOperator_GenerateLokiWorkloadsAction(t *testing.T) {
-	type fields struct {
-		context       *fsm.Context
-		currentState  fsm.StateName
-		stateConfigs  map[fsm.StateName]fsm.StateConfig
-		ExtendedState *fsm.ExtendedState
-	}
-
-	type args struct {
-		params []string
-	}
-
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-
-	t.Parallel()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			fsm := &fsm.BifrostOperator{
-				Context:       tt.fields.context,
-				CurrentState:  tt.fields.currentState,
-				StateConfigs:  tt.fields.stateConfigs,
-				ExtendedState: tt.fields.ExtendedState,
-			}
-			if err := fsm.GenerateLokiWorkloadsAction(tt.args.params...); (err != nil) != tt.wantErr {
-				t.Errorf("BifrostOperator.GenerateLokiWorkloadsAction() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
 // +vectorsigma:action:InitializeContext
 func TestBifrostOperator_InitializeContextAction(t *testing.T) {
 	type fields struct {
@@ -1162,6 +772,123 @@ func TestBifrostOperator_DoneWithComponentAction(t *testing.T) {
 			}
 			if err := fsm.DoneWithComponentAction(tt.args.params...); (err != nil) != tt.wantErr {
 				t.Errorf("BifrostOperator.DoneWithComponentAction() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+// +vectorsigma:action:GenerateAlloy
+func TestBifrostOperator_GenerateAlloyAction(t *testing.T) {
+	type fields struct {
+		context       *fsm.Context
+		currentState  fsm.StateName
+		stateConfigs  map[fsm.StateName]fsm.StateConfig
+		ExtendedState *fsm.ExtendedState
+	}
+
+	type args struct {
+		params []string
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+
+	t.Parallel()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fsm := &fsm.BifrostOperator{
+				Context:       tt.fields.context,
+				CurrentState:  tt.fields.currentState,
+				StateConfigs:  tt.fields.stateConfigs,
+				ExtendedState: tt.fields.ExtendedState,
+			}
+			if err := fsm.GenerateAlloyAction(tt.args.params...); (err != nil) != tt.wantErr {
+				t.Errorf("BifrostOperator.GenerateAlloyAction() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+// +vectorsigma:action:GenerateGrafana
+func TestBifrostOperator_GenerateGrafanaAction(t *testing.T) {
+	type fields struct {
+		context       *fsm.Context
+		currentState  fsm.StateName
+		stateConfigs  map[fsm.StateName]fsm.StateConfig
+		ExtendedState *fsm.ExtendedState
+	}
+
+	type args struct {
+		params []string
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+
+	t.Parallel()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fsm := &fsm.BifrostOperator{
+				Context:       tt.fields.context,
+				CurrentState:  tt.fields.currentState,
+				StateConfigs:  tt.fields.stateConfigs,
+				ExtendedState: tt.fields.ExtendedState,
+			}
+			if err := fsm.GenerateGrafanaAction(tt.args.params...); (err != nil) != tt.wantErr {
+				t.Errorf("BifrostOperator.GenerateGrafanaAction() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+// +vectorsigma:action:GenerateLoki
+func TestBifrostOperator_GenerateLokiAction(t *testing.T) {
+	type fields struct {
+		context       *fsm.Context
+		currentState  fsm.StateName
+		stateConfigs  map[fsm.StateName]fsm.StateConfig
+		ExtendedState *fsm.ExtendedState
+	}
+
+	type args struct {
+		params []string
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+
+	t.Parallel()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fsm := &fsm.BifrostOperator{
+				Context:       tt.fields.context,
+				CurrentState:  tt.fields.currentState,
+				StateConfigs:  tt.fields.stateConfigs,
+				ExtendedState: tt.fields.ExtendedState,
+			}
+			if err := fsm.GenerateLokiAction(tt.args.params...); (err != nil) != tt.wantErr {
+				t.Errorf("BifrostOperator.GenerateLokiAction() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

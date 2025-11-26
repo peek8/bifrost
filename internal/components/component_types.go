@@ -10,6 +10,7 @@
 package components
 
 import (
+	"github.com/samber/lo"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -34,14 +35,18 @@ func Named(name string) func(Component) bool {
 // +kubebuilder:object:generate=false
 type Components []Component
 
-func (p Components) FindComponentWithKindAndName(kind string, name string) Component {
-	for _, Component := range p {
-		if Component.GetObjectKind().GroupVersionKind().Kind == kind && Component.GetName() == name {
-			return Component
-		}
-	}
+func (cmps Components) FindComponentWithKindAndName(kind string, name string) Component {
+	elem, ok := lo.Find(cmps, func(c Component) bool {
+		return c.GetObjectKind().GroupVersionKind().Kind == kind && c.GetName() == name
+	})
 
-	return nil
+	return lo.Ternary(ok, elem, nil)
+}
+
+func (cmps Components) NonEmptyComponents() Components {
+	return lo.Filter(cmps, func(c Component, _ int) bool {
+		return c.GetName() != ""
+	})
 }
 
 // +kubebuilder:object:generate=true

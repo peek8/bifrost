@@ -55,66 +55,6 @@ func (fsm *BifrostOperator) CreateComponentAction(_ ...string) error {
 	return nil
 }
 
-// +vectorsigma:action:GenerateAlloyConfig
-func (fsm *BifrostOperator) GenerateAlloyConfigAction(_ ...string) error {
-	// TODO: Implement me!
-	return nil
-}
-
-// +vectorsigma:action:GenerateAlloyRbac
-func (fsm *BifrostOperator) GenerateAlloyRbacAction(_ ...string) error {
-	// TODO: Implement me!
-	return nil
-}
-
-// +vectorsigma:action:GenerateAlloyStorage
-func (fsm *BifrostOperator) GenerateAlloyStorageAction(_ ...string) error {
-	// TODO: Implement me!
-	return nil
-}
-
-// +vectorsigma:action:GenerateAlloyWorkloads
-func (fsm *BifrostOperator) GenerateAlloyWorkloadsAction(_ ...string) error {
-	// TODO: Implement me!
-	return nil
-}
-
-// +vectorsigma:action:GenerateGrafanaConfig
-func (fsm *BifrostOperator) GenerateGrafanaConfigAction(_ ...string) error {
-	// TODO: Implement me!
-	return nil
-}
-
-// +vectorsigma:action:GenerateGrafanaStorage
-func (fsm *BifrostOperator) GenerateGrafanaStorageAction(_ ...string) error {
-	// TODO: Implement me!
-	return nil
-}
-
-// +vectorsigma:action:GenerateGrafanaWorkloads
-func (fsm *BifrostOperator) GenerateGrafanaWorkloadsAction(_ ...string) error {
-	// TODO: Implement me!
-	return nil
-}
-
-// +vectorsigma:action:GenerateLokiConfig
-func (fsm *BifrostOperator) GenerateLokiConfigAction(_ ...string) error {
-	// TODO: Implement me!
-	return nil
-}
-
-// +vectorsigma:action:GenerateLokiStorage
-func (fsm *BifrostOperator) GenerateLokiStorageAction(_ ...string) error {
-	// TODO: Implement me!
-	return nil
-}
-
-// +vectorsigma:action:GenerateLokiWorkloads
-func (fsm *BifrostOperator) GenerateLokiWorkloadsAction(_ ...string) error {
-	// TODO: Implement me!
-	return nil
-}
-
 // +vectorsigma:action:InitializeContextAction
 func (fsm *BifrostOperator) InitializeContextAction(_ ...string) error {
 	fsm.ExtendedState.Waves = make(map[string]components.Components)
@@ -262,5 +202,23 @@ func (fsm *BifrostOperator) DoneWithComponentAction(_ ...string) error {
 	fsm.ExtendedState.ActualComponent = nil
 	fsm.ExtendedState.DesiredComponent = nil
 
+	return nil
+}
+
+// +vectorsigma:action:GenerateAlloy
+func (fsm *BifrostOperator) GenerateAlloyAction(_ ...string) error {
+	// TODO: Implement me!
+	return nil
+}
+
+// +vectorsigma:action:GenerateGrafana
+func (fsm *BifrostOperator) GenerateGrafanaAction(_ ...string) error {
+	// TODO: Implement me!
+	return nil
+}
+
+// +vectorsigma:action:GenerateLoki
+func (fsm *BifrostOperator) GenerateLokiAction(_ ...string) error {
+	// TODO: Implement me!
 	return nil
 }

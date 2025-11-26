@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2025 peek8.io
+ *
+ * Created Date: Wednesday, November 26th 2025, 3:39:34 pm
+ * Author: Md. Asraful Haque
+ *
+ */
+
+// Package components contains all the components that will be applied to k8s cluster.
 package components
 
 import (

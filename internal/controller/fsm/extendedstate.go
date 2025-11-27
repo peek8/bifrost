@@ -12,6 +12,7 @@ import (
 	bifrostv1alpha1 "github.com/peek8/bifrost/api/v1alpha1"
 	"github.com/peek8/bifrost/internal/alloy"
 	"github.com/peek8/bifrost/internal/components"
+	"github.com/peek8/bifrost/internal/grafana"
 	"github.com/peek8/bifrost/internal/loki"
 )
 
@@ -54,6 +55,7 @@ type ExtendedState struct {
 	Dirty bool
 
 	// builders
-	AlloyBuilder components.Builder[alloy.Alloy, alloy.Data]
-	LokiBuilder  components.Builder[loki.Loki, loki.Data]
+	AlloyBuilder   components.Builder[alloy.Alloy, alloy.Data]
+	LokiBuilder    components.Builder[loki.Loki, loki.Data]
+	GrafanaBuilder components.Builder[grafana.Grafana, grafana.Data]
 }

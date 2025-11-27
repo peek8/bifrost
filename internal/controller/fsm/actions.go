@@ -10,6 +10,7 @@ import (
 	bifrostv1alpha1 "github.com/peek8/bifrost/api/v1alpha1"
 	"github.com/peek8/bifrost/internal/alloy"
 	"github.com/peek8/bifrost/internal/components"
+	"github.com/peek8/bifrost/internal/grafana"
 	"github.com/peek8/bifrost/internal/loki"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
@@ -63,6 +64,7 @@ func (fsm *BifrostOperator) InitializeContextAction(_ ...string) error {
 	fsm.ExtendedState.Flags = make(map[string]bool)
 	fsm.ExtendedState.AlloyBuilder = alloy.Builder{}
 	fsm.ExtendedState.LokiBuilder = loki.Builder{}
+	fsm.ExtendedState.GrafanaBuilder = grafana.Builder{}
 
 	return nil
 }
@@ -228,7 +230,18 @@ func (fsm *BifrostOperator) GenerateAlloyAction(_ ...string) error {
 
 // +vectorsigma:action:GenerateGrafana
 func (fsm *BifrostOperator) GenerateGrafanaAction(_ ...string) error {
-	// TODO: Implement me!
+	grafana, err := fsm.ExtendedState.GrafanaBuilder.New(fsm.Context.Ctx, grafana.Data{
+		Name:         fsm.ExtendedState.Instance.Name + "-grafana",
+		LogSpaceSpec: fsm.ExtendedState.Instance.Spec,
+		Namespace:    fsm.ExtendedState.Instance.Namespace,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	fsm.ExtendedState.Waves[fsm.ExtendedState.CurrentWave] = append(fsm.ExtendedState.Waves[fsm.ExtendedState.CurrentWave], grafana.ToComponents()...)
+
 	return nil
 }
 

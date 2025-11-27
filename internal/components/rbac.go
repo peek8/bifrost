@@ -19,23 +19,45 @@ type Role struct {
 	rbacv1.Role
 }
 
-func (s *Role) DeepCopySpecInto(other Component) {
-	other.(*Role).Rules = s.DeepCopy().Rules
+func (r *Role) DeepCopySpecInto(other Component) {
+	other.(*Role).Rules = r.DeepCopy().Rules
 }
 
-func (s *Role) DiffersSemanticallyFrom(other Component) bool {
-	return !apiequality.Semantic.DeepDerivative(s.Rules, other.(*Role).Rules)
+func (r *Role) DiffersSemanticallyFrom(other Component) bool {
+	return !apiequality.Semantic.DeepDerivative(r.Rules, other.(*Role).Rules)
 }
 
-func (s *Role) GetClientObject() client.Object {
-	return &s.Role
+func (r *Role) GetClientObject() client.Object {
+	return &r.Role
 }
 
-func (s *Role) IsReady() (string, string, bool) {
+func (r *Role) IsReady() (string, string, bool) {
 	return "", "", true
 }
 
 func (s *Role) PropagateLabels(_ map[string]string) {}
+
+type ClusterRole struct {
+	rbacv1.ClusterRole
+}
+
+func (cr *ClusterRole) DeepCopySpecInto(other Component) {
+	other.(*Role).Rules = cr.DeepCopy().Rules
+}
+
+func (cr *ClusterRole) DiffersSemanticallyFrom(other Component) bool {
+	return !apiequality.Semantic.DeepDerivative(cr.Rules, other.(*Role).Rules)
+}
+
+func (cr *ClusterRole) GetClientObject() client.Object {
+	return &cr.ClusterRole
+}
+
+func (cr *ClusterRole) IsReady() (string, string, bool) {
+	return "", "", true
+}
+
+func (s *ClusterRole) PropagateLabels(_ map[string]string) {}
 
 // RoleBinding
 
@@ -43,25 +65,49 @@ type RoleBinding struct {
 	rbacv1.RoleBinding
 }
 
-func (s *RoleBinding) DeepCopySpecInto(other Component) {
-	other.(*RoleBinding).Subjects = s.DeepCopy().Subjects
-	other.(*RoleBinding).RoleRef = s.RoleRef
+func (rb *RoleBinding) DeepCopySpecInto(other Component) {
+	other.(*RoleBinding).Subjects = rb.DeepCopy().Subjects
+	other.(*RoleBinding).RoleRef = rb.RoleRef
 }
 
-func (s *RoleBinding) DiffersSemanticallyFrom(other Component) bool {
-	return !(apiequality.Semantic.DeepDerivative(s.Subjects, other.(*RoleBinding).Subjects) &&
-		apiequality.Semantic.DeepDerivative(s.RoleRef, other.(*RoleBinding).RoleRef))
+func (rb *RoleBinding) DiffersSemanticallyFrom(other Component) bool {
+	return !(apiequality.Semantic.DeepDerivative(rb.Subjects, other.(*RoleBinding).Subjects) &&
+		apiequality.Semantic.DeepDerivative(rb.RoleRef, other.(*RoleBinding).RoleRef))
 }
 
-func (s *RoleBinding) GetClientObject() client.Object {
-	return &s.RoleBinding
+func (rb *RoleBinding) GetClientObject() client.Object {
+	return &rb.RoleBinding
 }
 
-func (s *RoleBinding) IsReady() (string, string, bool) {
+func (rb *RoleBinding) IsReady() (string, string, bool) {
 	return "", "", true
 }
 
-func (s *RoleBinding) PropagateLabels(_ map[string]string) {}
+func (rb *RoleBinding) PropagateLabels(_ map[string]string) {}
+
+type ClusterRoleBinding struct {
+	rbacv1.ClusterRoleBinding
+}
+
+func (rb *ClusterRoleBinding) DeepCopySpecInto(other Component) {
+	other.(*ClusterRoleBinding).Subjects = rb.DeepCopy().Subjects
+	other.(*ClusterRoleBinding).RoleRef = rb.RoleRef
+}
+
+func (rb *ClusterRoleBinding) DiffersSemanticallyFrom(other Component) bool {
+	return !(apiequality.Semantic.DeepDerivative(rb.Subjects, other.(*RoleBinding).Subjects) &&
+		apiequality.Semantic.DeepDerivative(rb.RoleRef, other.(*RoleBinding).RoleRef))
+}
+
+func (rb *ClusterRoleBinding) GetClientObject() client.Object {
+	return &rb.ClusterRoleBinding
+}
+
+func (rb *ClusterRoleBinding) IsReady() (string, string, bool) {
+	return "", "", true
+}
+
+func (rb *ClusterRoleBinding) PropagateLabels(_ map[string]string) {}
 
 // Service account
 

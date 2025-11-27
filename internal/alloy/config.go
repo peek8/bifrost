@@ -14,7 +14,7 @@ var alloyConfig string
 func AlloyConfigMap(data Data) corev1.ConfigMap {
 	return corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "alloy",
+			Name:      data.Name,
 			Namespace: data.Namespace,
 		},
 		BinaryData: map[string][]byte{

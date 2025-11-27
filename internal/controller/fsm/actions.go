@@ -8,6 +8,7 @@ import (
 	k8stypes "k8s.io/apimachinery/pkg/types"
 
 	bifrostv1alpha1 "github.com/peek8/bifrost/api/v1alpha1"
+	"github.com/peek8/bifrost/internal/alloy"
 	"github.com/peek8/bifrost/internal/components"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
@@ -59,6 +60,7 @@ func (fsm *BifrostOperator) CreateComponentAction(_ ...string) error {
 func (fsm *BifrostOperator) InitializeContextAction(_ ...string) error {
 	fsm.ExtendedState.Waves = make(map[string]components.Components)
 	fsm.ExtendedState.Flags = make(map[string]bool)
+	fsm.ExtendedState.AlloyBuilder = alloy.Builder{}
 
 	return nil
 }
@@ -207,7 +209,16 @@ func (fsm *BifrostOperator) DoneWithComponentAction(_ ...string) error {
 
 // +vectorsigma:action:GenerateAlloy
 func (fsm *BifrostOperator) GenerateAlloyAction(_ ...string) error {
-	// TODO: Implement me!
+	alloy, err := fsm.ExtendedState.AlloyBuilder.New(fsm.Context.Ctx, alloy.Data{
+		Name:         "alloy",
+		LogSpaceSpec: fsm.ExtendedState.Instance.Spec,
+		Namespace:    fsm.ExtendedState.Instance.Namespace,
+	})
+	if err != nil {
+		return err
+	}
+
+	fsm.ExtendedState.Waves[fsm.ExtendedState.CurrentWave] = append(fsm.ExtendedState.Waves[fsm.ExtendedState.CurrentWave], alloy.ToComponents()...)
 	return nil
 }
 

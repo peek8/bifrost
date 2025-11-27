@@ -2,7 +2,6 @@
 package utils
 
 import (
-	"context"
 	"fmt"
 	"reflect"
 
@@ -38,7 +37,7 @@ type AddConfigMapAsVolume struct {
 
 // Apply adds the ConfigMap as a volume to the Deployment and mounts it to the container.
 // If the volume is already present inside the deployment, it will not be added again.
-func (a AddConfigMapAsVolume) Apply(ctx context.Context) func(*corev1.PodTemplateSpec) error {
+func (a AddConfigMapAsVolume) Apply() func(*corev1.PodTemplateSpec) error {
 	return func(d *corev1.PodTemplateSpec) error {
 		newVolume := corev1.Volume{
 			Name: a.VolumeName,
@@ -90,7 +89,7 @@ type AddPVC struct {
 	ContainerName string
 }
 
-func (a AddPVC) Apply(ctx context.Context) func(*corev1.PodTemplateSpec) error {
+func (a AddPVC) Apply() func(*corev1.PodTemplateSpec) error {
 	return func(d *corev1.PodTemplateSpec) error {
 		newVolume := corev1.Volume{
 			Name: a.PVCName,

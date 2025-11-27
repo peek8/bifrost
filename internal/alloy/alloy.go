@@ -7,10 +7,13 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
+	"k8s.io/utils/ptr"
 
 	"github.com/peek8/bifrost/api/v1alpha1"
 	"github.com/peek8/bifrost/internal/components"
 	"github.com/peek8/bifrost/internal/components/factory"
+	"github.com/peek8/bifrost/internal/utils"
 )
 
 const (
@@ -22,6 +25,7 @@ const (
 	configPath  = "/etc/alloy"
 	configFile  = "config.alloy"
 	storagePath = "/var/lib/alloy/data"
+	storageSize = "5Gi"
 )
 
 type Data struct {
@@ -34,6 +38,10 @@ type Alloy struct {
 	config    corev1.ConfigMap
 	pvc       corev1.PersistentVolumeClaim
 	daemonSet appsv1.DaemonSet
+	//rbac
+	serviceAccount corev1.ServiceAccount
+	role           rbacv1.ClusterRole
+	roleBinding    rbacv1.ClusterRoleBinding
 }
 
 func (al Alloy) ToComponents() components.Components {
@@ -41,6 +49,9 @@ func (al Alloy) ToComponents() components.Components {
 		&components.ConfigMap{ConfigMap: al.config},
 		&components.DaemonSet{DaemonSet: al.daemonSet},
 		&components.PersistentVolumeClaim{PersistentVolumeClaim: al.pvc},
+		&components.ServiceAccount{ServiceAccount: al.serviceAccount},
+		&components.ClusterRole{ClusterRole: al.role},
+		&components.ClusterRoleBinding{ClusterRoleBinding: al.roleBinding},
 	}
 
 	return items.NonEmptyComponents()
@@ -49,9 +60,40 @@ func (al Alloy) ToComponents() components.Components {
 type Builder struct{}
 
 func (b Builder) New(ctx context.Context, data Data) (Alloy, error) {
-	return Alloy{
-		daemonSet: daemonSet(data),
-	}, nil
+	role := *clusterRole(data)
+	sa := serviceAccount(data)
+
+	alloy := Alloy{
+		daemonSet:      daemonSet(data),
+		config:         AlloyConfigMap(data),
+		pvc:            factory.NewPVC(data.Name, data.Namespace, storageSize, data.LogSpaceSpec.PVCStorage.StorageClass),
+		serviceAccount: sa,
+		role:           role,
+		roleBinding:    clusterRoleBinding(data, role, sa),
+	}
+
+	options := []utils.Option[corev1.PodTemplateSpec]{
+		utils.AddConfigMapAsVolume{
+			ConfigMapName: alloy.config.Name,
+			VolumeName:    "alloy-config",
+			MountPath:     configPath,
+			ContainerName: primaryContainer,
+			Mode:          ptr.To(int32(0755)),
+		},
+		utils.AddPVC{
+			PVCName:       alloy.pvc.Name,
+			MountPath:     storagePath,
+			ContainerName: primaryContainer,
+		},
+	}
+
+	err := utils.ApplyAll(&alloy.daemonSet.Spec.Template, options...)
+
+	if err != nil {
+		return Alloy{}, err
+	}
+
+	return alloy, nil
 }
 
 func daemonSet(data Data) appsv1.DaemonSet {
@@ -73,7 +115,25 @@ func daemonSet(data Data) appsv1.DaemonSet {
 		},
 	}
 
-	return factory.NewDaemonSet(data.Name, data.Namespace, factory.K8sLabels(data.Name, "collector"), container)
+	return *factory.NewDaemonSet(data.Name, data.Namespace, container).
+		WithLabels(factory.K8sLabels(data.Name, "collector")).
+		WithServiceAccount(data.Name).
+		Get()
+}
+
+func serviceAccount(d Data) corev1.ServiceAccount {
+	return factory.NewServiceAccount(d.Name, d.Namespace)
+}
+
+func clusterRole(d Data) *rbacv1.ClusterRole {
+	return factory.NewClusterRole(d.Name, d.Namespace).
+		WithRules("", []string{"pods", "namespaces"}, []string{"get", "list", "watch"}).
+		WithRules("", []string{"pods/log"}, []string{"get", "list", "watch"}).
+		Get()
+}
+
+func clusterRoleBinding(d Data, role rbacv1.ClusterRole, sa corev1.ServiceAccount) rbacv1.ClusterRoleBinding {
+	return factory.ClusterRoleBinding(d.Name, role, sa)
 }
 
 func listenAddr() string {

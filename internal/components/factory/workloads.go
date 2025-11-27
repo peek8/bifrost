@@ -30,16 +30,37 @@ func NewDeployment(name string, namespace string, labels map[string]string, cont
 	}
 }
 
-func NewDaemonSet(name string, namespace string, labels map[string]string, container corev1.Container) appsv1.DaemonSet {
-	return appsv1.DaemonSet{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-			Labels:    labels,
-		},
-		Spec: appsv1.DaemonSetSpec{
-			Selector: appLabelSeclector(name),
-			Template: podTemplateSpec(name, container),
+type DaemonSetBuilder struct {
+	daemonSet *appsv1.DaemonSet
+}
+
+func (dsb DaemonSetBuilder) WithLabels(labels map[string]string) DaemonSetBuilder {
+	dsb.daemonSet.Labels = labels
+
+	return dsb
+}
+
+func (dsb DaemonSetBuilder) WithServiceAccount(sa string) DaemonSetBuilder {
+	dsb.daemonSet.Spec.Template.Spec.ServiceAccountName = sa
+
+	return dsb
+}
+
+func (dsb DaemonSetBuilder) Get() *appsv1.DaemonSet {
+	return dsb.daemonSet
+}
+
+func NewDaemonSet(name string, namespace string, mainContainer corev1.Container) DaemonSetBuilder {
+	return DaemonSetBuilder{
+		daemonSet: &appsv1.DaemonSet{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Spec: appsv1.DaemonSetSpec{
+				Selector: appLabelSeclector(name),
+				Template: podTemplateSpec(name, mainContainer),
+			},
 		},
 	}
 }

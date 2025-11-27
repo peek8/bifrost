@@ -10,6 +10,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	bifrostv1alpha1 "github.com/peek8/bifrost/api/v1alpha1"
+	"github.com/peek8/bifrost/internal/alloy"
 	"github.com/peek8/bifrost/internal/components"
 )
 
@@ -50,4 +51,7 @@ type ExtendedState struct {
 	Flags map[string]bool
 
 	Dirty bool
+
+	// builders
+	AlloyBuilder components.Builder[alloy.Alloy, alloy.Data]
 }

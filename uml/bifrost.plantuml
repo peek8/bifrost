@@ -46,30 +46,30 @@ state SyncingWave {
     [*]--> InitializingWave
 
     InitializingWave: do / InitializeWave
-    InitializingWave -[bold]-> PickingNextComponent
+    InitializingWave -[bold]-> IteratingComponents
+
+    IteratingComponents -[bold]-> PickingNextComponent: [ MoreComponents ]
+    IteratingComponents -[bold]-> [*]
 
     PickingNextComponent: do / PickNextComponent
-    PickingNextComponent --> ProcessingComponent: [ MoreComponents ]
-    PickingNextComponent -[bold]-> [*]
+    PickingNextComponent --> LoadingComponent
 
-    state ProcessingComponent {
-        [*] --> LoadingComponent
+    LoadingComponent: do / LoadComponent
+    LoadingComponent --> CreatingComponent: [ ComponentDoesNotExist ]
+    LoadingComponent --> UpdatingComponent: [ ComponentDiffers ]
+    LoadingComponent -[dotted]-> ComponentNotChanged
 
-        LoadingComponent: do / LoadComponent
-        LoadingComponent --> CreatingComponent: [ ComponentDoesNotExist ]
-        LoadingComponent --> UpdatingComponent: [ ComponentDiffers ]
-        LoadingComponent -[bold]-> [*]
+    ComponentNotChanged -[dotted]-> IteratingComponents
 
-        CreatingComponent: do / CreateComponent
-        CreatingComponent: do / SetFlag(NeedsReconcile)
-        CreatingComponent -[bold]-> [*]
+    CreatingComponent: do / CreateComponent
+    CreatingComponent: do / SetFlag(NeedsReconcile)
+    CreatingComponent -[bold]-> IteratingComponents
 
-        UpdatingComponent: do / UpdateComponent
-        UpdatingComponent: do / SetFlag(NeedsReconcile)
-        UpdatingComponent: do / DoneWithComponent
-        UpdatingComponent -[bold]-> [*]
-    }
-    ProcessingComponent -[bold]-> PickingNextComponent
+    UpdatingComponent: do / UpdateComponent
+    UpdatingComponent: do / SetFlag(NeedsReconcile)
+    UpdatingComponent: do / DoneWithComponent
+    UpdatingComponent -[bold]-> IteratingComponents
+   
 }
 SyncingWave --> GeneratingLokiComponents: [ WasWave(Alloy) ]
 SyncingWave --> GeneratingGrafanaComponents: [ WasWave(Loki) ]

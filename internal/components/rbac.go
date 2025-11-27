@@ -42,11 +42,11 @@ type ClusterRole struct {
 }
 
 func (cr *ClusterRole) DeepCopySpecInto(other Component) {
-	other.(*Role).Rules = cr.DeepCopy().Rules
+	other.(*ClusterRole).Rules = cr.DeepCopy().Rules
 }
 
 func (cr *ClusterRole) DiffersSemanticallyFrom(other Component) bool {
-	return !apiequality.Semantic.DeepDerivative(cr.Rules, other.(*Role).Rules)
+	return !apiequality.Semantic.DeepDerivative(cr.Rules, other.(*ClusterRole).Rules)
 }
 
 func (cr *ClusterRole) GetClientObject() client.Object {
@@ -95,8 +95,8 @@ func (rb *ClusterRoleBinding) DeepCopySpecInto(other Component) {
 }
 
 func (rb *ClusterRoleBinding) DiffersSemanticallyFrom(other Component) bool {
-	return !(apiequality.Semantic.DeepDerivative(rb.Subjects, other.(*RoleBinding).Subjects) &&
-		apiequality.Semantic.DeepDerivative(rb.RoleRef, other.(*RoleBinding).RoleRef))
+	return !(apiequality.Semantic.DeepDerivative(rb.Subjects, other.(*ClusterRoleBinding).Subjects) &&
+		apiequality.Semantic.DeepDerivative(rb.RoleRef, other.(*ClusterRoleBinding).RoleRef))
 }
 
 func (rb *ClusterRoleBinding) GetClientObject() client.Object {

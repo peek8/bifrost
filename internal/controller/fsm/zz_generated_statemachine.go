@@ -21,6 +21,7 @@ const (
 	Closing                     StateName = "Closing"
 	ClosingInitial              StateName = "ClosingInitial"
 	CollectingStatusInformation StateName = "CollectingStatusInformation"
+	ComponentNotChanged         StateName = "ComponentNotChanged"
 	CreatingComponent           StateName = "CreatingComponent"
 	EditMande                   StateName = "EditMande"
 	EndingWave                  StateName = "EndingWave"
@@ -36,12 +37,12 @@ const (
 	InitializingContext         StateName = "InitializingContext"
 	InitializingWave            StateName = "InitializingWave"
 	ItemsNotReady               StateName = "ItemsNotReady"
+	IteratingComponents         StateName = "IteratingComponents"
 	LoadingComponent            StateName = "LoadingComponent"
 	LoadingSubject              StateName = "LoadingSubject"
 	NotDone                     StateName = "NotDone"
 	PickingNextComponent        StateName = "PickingNextComponent"
 	PlanDefaultReconcile        StateName = "PlanDefaultReconcile"
-	ProcessingComponent         StateName = "ProcessingComponent"
 	SendingEvent                StateName = "SendingEvent"
 	SubjectDoesNotExist         StateName = "SubjectDoesNotExist"
 	SyncingWave                 StateName = "SyncingWave"
@@ -424,18 +425,6 @@ func New() *BifrostOperator {
 			},
 		},
 	}
-	fsm.StateConfigs[PickingNextComponent] = StateConfig{
-		Actions:     []Action{},
-		Guards:      []Guard{},
-		Transitions: map[int]StateName{},
-	}
-	fsm.StateConfigs[ProcessingComponent] = StateConfig{
-		Actions: []Action{},
-		Guards:  []Guard{},
-		Transitions: map[int]StateName{
-			0: PickingNextComponent,
-		},
-	}
 	fsm.StateConfigs[SyncingWave] = StateConfig{
 		Actions: []Action{},
 		Guards: []Guard{
@@ -452,6 +441,13 @@ func New() *BifrostOperator {
 		Composite: CompositeState{
 			InitialState: InitialState,
 			StateConfigs: map[StateName]StateConfig{
+				ComponentNotChanged: {
+					Actions: []Action{},
+					Guards:  []Guard{},
+					Transitions: map[int]StateName{
+						0: IteratingComponents,
+					},
+				},
 				CreatingComponent: {
 					Actions: []Action{
 						{Name: CreateComponent, Execute: fsm.CreateComponentAction, Params: []string{}},
@@ -459,7 +455,7 @@ func New() *BifrostOperator {
 					},
 					Guards: []Guard{},
 					Transitions: map[int]StateName{
-						0: FinalState,
+						0: IteratingComponents,
 					},
 				},
 
@@ -468,7 +464,6 @@ func New() *BifrostOperator {
 					Guards:  []Guard{},
 					Transitions: map[int]StateName{
 						0: InitializingWave,
-						1: LoadingComponent,
 					},
 				},
 				InitializingWave: {
@@ -477,7 +472,17 @@ func New() *BifrostOperator {
 					},
 					Guards: []Guard{},
 					Transitions: map[int]StateName{
+						0: IteratingComponents,
+					},
+				},
+				IteratingComponents: {
+					Actions: []Action{},
+					Guards: []Guard{
+						{Name: MoreComponents, Params: []string{}, Check: fsm.MoreComponentsGuard},
+					},
+					Transitions: map[int]StateName{
 						0: PickingNextComponent,
+						1: FinalState,
 					},
 				},
 				LoadingComponent: {
@@ -491,25 +496,17 @@ func New() *BifrostOperator {
 					Transitions: map[int]StateName{
 						0: CreatingComponent,
 						1: UpdatingComponent,
-						2: FinalState,
+						2: ComponentNotChanged,
 					},
 				},
 				PickingNextComponent: {
 					Actions: []Action{
 						{Name: PickNextComponent, Execute: fsm.PickNextComponentAction, Params: []string{}},
 					},
-					Guards: []Guard{
-						{Name: MoreComponents, Params: []string{}, Check: fsm.MoreComponentsGuard},
-					},
+					Guards: []Guard{},
 					Transitions: map[int]StateName{
-						0: ProcessingComponent,
-						1: FinalState,
+						0: LoadingComponent,
 					},
-				},
-				ProcessingComponent: {
-					Actions:     []Action{},
-					Guards:      []Guard{},
-					Transitions: map[int]StateName{},
 				},
 				UpdatingComponent: {
 					Actions: []Action{
@@ -519,7 +516,7 @@ func New() *BifrostOperator {
 					},
 					Guards: []Guard{},
 					Transitions: map[int]StateName{
-						0: FinalState,
+						0: IteratingComponents,
 					},
 				},
 			},

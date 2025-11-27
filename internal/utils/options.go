@@ -65,7 +65,7 @@ func (a AddConfigMapAsVolume) Apply() func(*corev1.PodTemplateSpec) error {
 			d.Spec.Volumes = append(d.Spec.Volumes, newVolume)
 		}
 
-		container, err := mustFindContainer(d.Spec.Containers, a.ContainerName)
+		container, err := mustFindContainer(&d.Spec, a.ContainerName)
 
 		if err != nil {
 			return err
@@ -77,7 +77,7 @@ func (a AddConfigMapAsVolume) Apply() func(*corev1.PodTemplateSpec) error {
 			SubPath:   a.SubPath,
 		}
 
-		container.VolumeMounts, err = addVolumeMount(&container, newVolumeMount)
+		container.VolumeMounts, err = addVolumeMount(container, newVolumeMount)
 
 		return err
 	}
@@ -110,7 +110,7 @@ func (a AddPVC) Apply() func(*corev1.PodTemplateSpec) error {
 			d.Spec.Volumes = append(d.Spec.Volumes, newVolume)
 		}
 
-		container, err := mustFindContainer(d.Spec.Containers, a.ContainerName)
+		container, err := mustFindContainer(&d.Spec, a.ContainerName)
 
 		if err != nil {
 			return err
@@ -121,7 +121,7 @@ func (a AddPVC) Apply() func(*corev1.PodTemplateSpec) error {
 			MountPath: a.MountPath,
 		}
 
-		container.VolumeMounts, err = addVolumeMount(&container, newVolumeMount)
+		container.VolumeMounts, err = addVolumeMount(container, newVolumeMount)
 
 		return err
 	}
@@ -143,14 +143,12 @@ func addVolumeMount(container *corev1.Container, newMount corev1.VolumeMount) ([
 	return container.VolumeMounts, nil
 }
 
-func mustFindContainer(containers []corev1.Container, name string) (corev1.Container, error) {
-	container, found := lo.Find(containers, func(c corev1.Container) bool {
-		return c.Name == name
-	})
-
-	if !found {
-		return container, fmt.Errorf("unable to find container with name %s", name)
+func mustFindContainer(podSpec *corev1.PodSpec, name string) (*corev1.Container, error) {
+	for i, c := range podSpec.Containers {
+		if c.Name == name {
+			return &podSpec.Containers[i], nil
+		}
 	}
 
-	return container, nil
+	return nil, fmt.Errorf("unable to find container with name %s", name)
 }

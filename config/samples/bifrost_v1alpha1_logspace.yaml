@@ -6,4 +6,17 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
   name: logspace-sample
 spec:
-  # TODO(user): Add fields here
+  targetNamespaces:
+    - asgard
+    - midgard
+  pvc: 
+    storageClass: "local-path"
+  collector:
+    storage: 
+      size: "5Gi"
+  loki:
+    storage: 
+      size: "5Gi"
+
+
+

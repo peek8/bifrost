@@ -58,6 +58,7 @@ type LokiConfig struct {
 	Storage *StorageConfig `json:"storage,omitempty"`
 
 	// Schema Configuration for loki
+	//+optional
 	Schema *LokiSchemaConfig `json:"schema,omitempty"`
 }
 

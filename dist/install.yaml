@@ -1,0 +1,561 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bifrost
+    control-plane: controller-manager
+  name: bifrost
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.18.0
+  name: logspaces.bifrost.peek8.io
+spec:
+  group: bifrost.peek8.io
+  names:
+    kind: LogSpace
+    listKind: LogSpaceList
+    plural: logspaces
+    shortNames:
+    - ls
+    singular: logspace
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.state
+      name: State
+      type: string
+    - jsonPath: .status.observedNamespaces
+      name: Namespaces
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: LogSpace is the Schema for the logspaces API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: LogSpaceSpec defines the desired state of LogSpace.
+            properties:
+              collector:
+                description: Collector controls how Grafana Alloy (or other collector)
+                  is deployed.
+                properties:
+                  replicas:
+                    description: Replicas for collector controller (if applicable).
+                    format: int32
+                    minimum: 1
+                    type: integer
+                  storage:
+                    description: How much storage is needed for collector eg aloy
+                      default is 5Gi
+                    properties:
+                      size:
+                        description: Size of storage to be used in PVC Storage, eg
+                          5Gi
+                        type: string
+                    type: object
+                  type:
+                    default: grafana-alloy
+                    description: Type of collector. e.g. "grafana-alloy", "fluentbit",
+                      "fluentd", Now only grafana-alloy is supported
+                    enum:
+                    - grafana-alloy
+                    - fluentbit
+                    - fluentd
+                    type: string
+                type: object
+              loki:
+                description: Configuration for Loki
+                properties:
+                  deploymentMode:
+                    default: monolithic
+                    enum:
+                    - monolithic
+                    - simpleScalable
+                    - microservice
+                    type: string
+                  retentionPeriod:
+                    default: 7d
+                    description: Retention policy for logs, e.g. "7d", "30d"
+                    type: string
+                  schema:
+                    description: Schema Configuration for loki
+                    properties:
+                      fromDate:
+                        description: |-
+                          Loki will use this storage schema for all logs from this date.
+                          For example, if it is set to 2025-01-01, The schema will be used from 1st Jan, 2025
+                          If not set, the current date will be used
+                        type: string
+                      objectStore:
+                        default: filesystem
+                        description: "The supported values are `filesystem, s3, gcs,
+                          azure` where `filesystem`\tstore TSDB blocks locally on
+                          disk\nand others store blocks in cloud object storage.\nFor
+                          now only filesystem is supported"
+                        enum:
+                        - filesystem
+                        - s3
+                        - gcs
+                        - azure
+                        type: string
+                    type: object
+                  storage:
+                    description: Storage Configuration for loki
+                    properties:
+                      size:
+                        description: Size of storage to be used in PVC Storage, eg
+                          5Gi
+                        type: string
+                    type: object
+                type: object
+              pvc:
+                description: General PVC storage settings of the cluster
+                properties:
+                  storageClass:
+                    description: |-
+                      Storage Cluster of the cluster. if you are not sure the default storage class of the cluster,
+                      you can get it by the command : $ kubectl get storageclass
+                    type: string
+                type: object
+              targetNamespaces:
+                description: Logs will be collected from the pods which are in these
+                  Namespaces.
+                items:
+                  type: string
+                type: array
+            type: object
+          status:
+            description: LogSpaceStatus defines the observed state of LogSpace.
+            properties:
+              grafanaEndpoint:
+                type: string
+              lastError:
+                description: LastError captures last reconciliation error (short message)
+                type: string
+              lastUpdated:
+                description: LastUpdated timestamp for status
+                format: date-time
+                type: string
+              lokiEndpoint:
+                type: string
+              observedNamespaces:
+                description: ObservedNamespaces lists namespaces the operator selected/observed
+                items:
+                  type: string
+                type: array
+              phase:
+                type: string
+              state:
+                description: State is a high-level state like "Ready", "Reconciling",
+                  "Error"
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bifrost
+  name: bifrost-controller-manager
+  namespace: bifrost
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bifrost
+  name: bifrost-leader-election-role
+  namespace: bifrost
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bifrost
+  name: bifrost-logspace-admin-role
+rules:
+- apiGroups:
+  - bifrost.peek8.io
+  resources:
+  - logspaces
+  verbs:
+  - '*'
+- apiGroups:
+  - bifrost.peek8.io
+  resources:
+  - logspaces/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bifrost
+  name: bifrost-logspace-editor-role
+rules:
+- apiGroups:
+  - bifrost.peek8.io
+  resources:
+  - logspaces
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - bifrost.peek8.io
+  resources:
+  - logspaces/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bifrost
+  name: bifrost-logspace-viewer-role
+rules:
+- apiGroups:
+  - bifrost.peek8.io
+  resources:
+  - logspaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - bifrost.peek8.io
+  resources:
+  - logspaces/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: bifrost-manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - persistentvolumeclaims
+  - secrets
+  - serviceaccounts
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - bifrost.peek8.io
+  resources:
+  - logspaces
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - bifrost.peek8.io
+  resources:
+  - logspaces/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - bifrost.peek8.io
+  resources:
+  - logspaces/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - gateway.networking.k8s.io
+  resources:
+  - httproutes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  - roles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: bifrost-metrics-auth-role
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: bifrost-metrics-reader
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bifrost
+  name: bifrost-leader-election-rolebinding
+  namespace: bifrost
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: bifrost-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: bifrost-controller-manager
+  namespace: bifrost
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bifrost
+  name: bifrost-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: bifrost-manager-role
+subjects:
+- kind: ServiceAccount
+  name: bifrost-controller-manager
+  namespace: bifrost
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: bifrost-metrics-auth-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: bifrost-metrics-auth-role
+subjects:
+- kind: ServiceAccount
+  name: bifrost-controller-manager
+  namespace: bifrost
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bifrost
+    control-plane: controller-manager
+  name: bifrost-controller-manager-metrics-service
+  namespace: bifrost
+spec:
+  ports:
+  - name: https
+    port: 8443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    app.kubernetes.io/name: bifrost
+    control-plane: controller-manager
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: bifrost
+    control-plane: controller-manager
+  name: bifrost-controller-manager
+  namespace: bifrost
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bifrost
+      control-plane: controller-manager
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        app.kubernetes.io/name: bifrost
+        control-plane: controller-manager
+    spec:
+      containers:
+      - args:
+        - --metrics-bind-address=:8443
+        - --leader-elect
+        - --health-probe-bind-address=:8081
+        command:
+        - /manager
+        image: bifrost:latest
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        ports: []
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts: []
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: bifrost-controller-manager
+      terminationGracePeriodSeconds: 10
+      volumes: []

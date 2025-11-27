@@ -10,6 +10,7 @@ import (
 	bifrostv1alpha1 "github.com/peek8/bifrost/api/v1alpha1"
 	"github.com/peek8/bifrost/internal/alloy"
 	"github.com/peek8/bifrost/internal/components"
+	"github.com/peek8/bifrost/internal/loki"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
@@ -61,6 +62,7 @@ func (fsm *BifrostOperator) InitializeContextAction(_ ...string) error {
 	fsm.ExtendedState.Waves = make(map[string]components.Components)
 	fsm.ExtendedState.Flags = make(map[string]bool)
 	fsm.ExtendedState.AlloyBuilder = alloy.Builder{}
+	fsm.ExtendedState.LokiBuilder = loki.Builder{}
 
 	return nil
 }
@@ -210,15 +212,17 @@ func (fsm *BifrostOperator) DoneWithComponentAction(_ ...string) error {
 // +vectorsigma:action:GenerateAlloy
 func (fsm *BifrostOperator) GenerateAlloyAction(_ ...string) error {
 	alloy, err := fsm.ExtendedState.AlloyBuilder.New(fsm.Context.Ctx, alloy.Data{
-		Name:         "alloy",
+		Name:         fsm.ExtendedState.Instance.Name + "-alloy",
 		LogSpaceSpec: fsm.ExtendedState.Instance.Spec,
 		Namespace:    fsm.ExtendedState.Instance.Namespace,
 	})
+
 	if err != nil {
 		return err
 	}
 
 	fsm.ExtendedState.Waves[fsm.ExtendedState.CurrentWave] = append(fsm.ExtendedState.Waves[fsm.ExtendedState.CurrentWave], alloy.ToComponents()...)
+
 	return nil
 }
 
@@ -230,6 +234,16 @@ func (fsm *BifrostOperator) GenerateGrafanaAction(_ ...string) error {
 
 // +vectorsigma:action:GenerateLoki
 func (fsm *BifrostOperator) GenerateLokiAction(_ ...string) error {
-	// TODO: Implement me!
+	loki, err := fsm.ExtendedState.LokiBuilder.New(fsm.Context.Ctx, loki.Data{
+		Name:         fsm.ExtendedState.Instance.Name + "-loki",
+		LogSpaceSpec: fsm.ExtendedState.Instance.Spec,
+		Namespace:    fsm.ExtendedState.Instance.Namespace,
+	})
+	if err != nil {
+		return err
+	}
+
+	fsm.ExtendedState.Waves[fsm.ExtendedState.CurrentWave] = append(fsm.ExtendedState.Waves[fsm.ExtendedState.CurrentWave], loki.ToComponents()...)
+
 	return nil
 }

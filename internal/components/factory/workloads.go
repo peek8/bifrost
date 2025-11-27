@@ -30,6 +30,7 @@ func NewDeployment(name string, namespace string, labels map[string]string, cont
 	}
 }
 
+// DaemonSetBuilder makes daemonSet
 type DaemonSetBuilder struct {
 	daemonSet *appsv1.DaemonSet
 }
@@ -60,6 +61,44 @@ func NewDaemonSet(name string, namespace string, mainContainer corev1.Container)
 			Spec: appsv1.DaemonSetSpec{
 				Selector: appLabelSeclector(name),
 				Template: podTemplateSpec(name, mainContainer),
+			},
+		},
+	}
+}
+
+// StatefulSetBuilder makes statefulset
+type StatefulSetBuilder struct {
+	statefulSet *appsv1.StatefulSet
+}
+
+func (dsb StatefulSetBuilder) WithLabels(labels map[string]string) StatefulSetBuilder {
+	dsb.statefulSet.Labels = labels
+
+	return dsb
+}
+
+func (dsb StatefulSetBuilder) WithServiceAccount(sa string) StatefulSetBuilder {
+	dsb.statefulSet.Spec.Template.Spec.ServiceAccountName = sa
+
+	return dsb
+}
+
+func (dsb StatefulSetBuilder) Get() *appsv1.StatefulSet {
+	return dsb.statefulSet
+}
+
+func NewStatefulSet(name string, namespace string, mainContainer corev1.Container) StatefulSetBuilder {
+	return StatefulSetBuilder{
+		statefulSet: &appsv1.StatefulSet{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Spec: appsv1.StatefulSetSpec{
+				Replicas:    ptr.To(int32(1)),
+				ServiceName: name,
+				Selector:    appLabelSeclector(name),
+				Template:    podTemplateSpec(name, mainContainer),
 			},
 		},
 	}

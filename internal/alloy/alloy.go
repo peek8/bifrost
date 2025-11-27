@@ -47,11 +47,11 @@ type Alloy struct {
 func (al Alloy) ToComponents() components.Components {
 	items := components.Components{
 		&components.ConfigMap{ConfigMap: al.config},
-		&components.DaemonSet{DaemonSet: al.daemonSet},
 		&components.PersistentVolumeClaim{PersistentVolumeClaim: al.pvc},
 		&components.ServiceAccount{ServiceAccount: al.serviceAccount},
 		&components.ClusterRole{ClusterRole: al.role},
 		&components.ClusterRoleBinding{ClusterRoleBinding: al.roleBinding},
+		&components.DaemonSet{DaemonSet: al.daemonSet},
 	}
 
 	return items.NonEmptyComponents()

@@ -12,6 +12,7 @@ import (
 	bifrostv1alpha1 "github.com/peek8/bifrost/api/v1alpha1"
 	"github.com/peek8/bifrost/internal/alloy"
 	"github.com/peek8/bifrost/internal/components"
+	"github.com/peek8/bifrost/internal/loki"
 )
 
 // A struct that holds the items needed for the actions to do their work.
@@ -54,4 +55,5 @@ type ExtendedState struct {
 
 	// builders
 	AlloyBuilder components.Builder[alloy.Alloy, alloy.Data]
+	LokiBuilder  components.Builder[loki.Loki, loki.Data]
 }

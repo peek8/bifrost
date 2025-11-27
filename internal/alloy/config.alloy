@@ -1,0 +1,86 @@
+loki.write "default" {
+    endpoint {
+        url = "http://loki.bifrost.svc.cluster.local:3100/loki/api/v1/push"
+    }
+}
+
+
+// discovery.kubernetes allows you to find scrape targets from Kubernetes resources.
+// It watches cluster state and ensures targets are continually synced with what is currently running in your cluster.
+discovery.kubernetes "pod" {
+  role = "pod"
+  // Restrict to pods on the node to reduce cpu & memory usage
+  selectors {
+    role = "pod"
+    // field = "spec.nodeName=" + coalesce(sys.env("HOSTNAME"), constants.hostname)
+    // label = "app.kubernetes.io/name=prometheus-node-exporter" 
+  }
+
+  namespaces {
+    names = ["bifrost", "asgard", "midgard"]
+  }
+}
+
+// discovery.relabel rewrites the label set of the input targets by applying one or more relabeling rules.
+// If no rules are defined, then the input targets are exported as-is.
+// Relabel discovered pods to extract metadata
+discovery.relabel "pods" {
+  targets = discovery.kubernetes.pod.targets
+
+  // Keep only running pods
+  rule {
+    source_labels = ["__meta_kubernetes_pod_phase"]
+    action        = "keep"
+    regex         = "Running"
+  }
+
+  // Add namespace label
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "namespace"
+  }
+
+  // Add pod name label
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    target_label  = "pod"
+  }
+
+  // Add container name label
+  rule {
+    source_labels = ["__meta_kubernetes_pod_container_name"]
+    target_label  = "container"
+  }
+
+  // Add pod labels as labels (optional)
+  rule {
+    action = "labelmap"
+    regex  = "__meta_kubernetes_pod_label_(.+)"
+  }
+
+  // Set the log path
+  rule {
+    source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+    separator     = "/"
+    target_label  = "__path__"
+    replacement   = "/var/log/pods/*$1/*.log"
+  }
+}
+
+// loki.source.kubernetes tails logs from Kubernetes containers using the Kubernetes API.
+loki.source.kubernetes "pod_logs" {
+  targets    = discovery.relabel.pods.output
+  forward_to = [loki.process.pod_logs.receiver]
+}
+
+// loki.process receives log entries from other Loki components, applies one or more processing stages,
+// and forwards the results to the list of receivers in the component's arguments.
+loki.process "pod_logs" {
+  stage.static_labels {
+      values = {
+        cluster = "default",
+      }
+  }
+
+  forward_to = [loki.write.default.receiver]
+}

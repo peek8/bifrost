@@ -108,7 +108,7 @@ fmt: ## Run go fmt against code.
 	go fmt ./...
 
 .PHONY: vet
-vet: ## Run go vet against code.
+vet: fmt ## Run go vet against code.
 	go vet ./...
 
 .PHONY: test

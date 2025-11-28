@@ -63,10 +63,22 @@ func (b Builder) New(ctx context.Context, data Data) (Alloy, error) {
 	role := *clusterRole(data)
 	sa := serviceAccount(data)
 
+	cd := ConfigData{
+		LokiService: "loki",
+		LokiPort:    3100,
+		Namespaces:  data.LogSpaceSpec.TargetNamespaces,
+		ClusterName: "default",
+	}
+
+	cm, err := AlloyConfigMap(data, cd)
+	if err != nil {
+		return Alloy{}, err
+	}
+
 	alloy := Alloy{
 		daemonSet:      daemonSet(data),
-		config:         AlloyConfigMap(data),
-		pvc:            factory.NewPVC(data.Name, data.Namespace, storageSize, data.LogSpaceSpec.PVCStorage.StorageClass),
+		config:         cm,
+		pvc:            factory.NewPVC(data.Name, data.Namespace, data.LogSpaceSpec.Collector.Storage.Size, data.LogSpaceSpec.PVCStorage.StorageClass),
 		serviceAccount: sa,
 		role:           role,
 		roleBinding:    clusterRoleBinding(data, role, sa),
@@ -87,7 +99,7 @@ func (b Builder) New(ctx context.Context, data Data) (Alloy, error) {
 		},
 	}
 
-	err := utils.ApplyAll(&alloy.daemonSet.Spec.Template, options...)
+	err = utils.ApplyAll(&alloy.daemonSet.Spec.Template, options...)
 
 	if err != nil {
 		return Alloy{}, err

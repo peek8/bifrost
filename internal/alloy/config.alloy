@@ -1,6 +1,6 @@
 loki.write "default" {
     endpoint {
-        url = "http://loki:3100/loki/api/v1/push"
+        url = "http://{{.LokiService}}:{{.LokiPort}}/loki/api/v1/push"
     }
 }
 
@@ -17,7 +17,7 @@ discovery.kubernetes "pod" {
   }
 
   namespaces {
-    names = ["bifrost", "asgard", "midgard"]
+    names = {{.Namespaces | jsonArray}}
   }
 }
 
@@ -78,7 +78,7 @@ loki.source.kubernetes "pod_logs" {
 loki.process "pod_logs" {
   stage.static_labels {
       values = {
-        cluster = "default",
+        cluster = "{{.ClusterName}}",
       }
   }
 

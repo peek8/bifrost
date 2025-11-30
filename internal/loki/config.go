@@ -9,11 +9,10 @@
 package loki
 
 import (
-	"bytes"
 	_ "embed"
-	"text/template"
 	"time"
 
+	"github.com/peek8/bifrost/internal/utils"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -21,28 +20,18 @@ import (
 //go:embed loki-config.yaml
 var lokiConfig string
 
-type ConfigData struct {
-	StoragePath     string
-	FromDate        string
-	RetentionPeriod string
-}
-
 func lokiConfigMap(data Data) (corev1.ConfigMap, error) {
-	var fromDate string
-	if data.LogSpaceSpec.LokiConfig.Schema != nil &&
-		data.LogSpaceSpec.LokiConfig.Schema.FromDate != nil {
-		fromDate = *data.LogSpaceSpec.LokiConfig.Schema.FromDate
-	} else {
-		currentTime := time.Now()
-		fromDate = currentTime.Format(time.DateOnly)
-	}
-
-	cd := ConfigData{
+	cd := struct {
+		StoragePath     string
+		FromDate        string
+		RetentionPeriod string
+	}{
 		StoragePath:     storagePath,
-		FromDate:        fromDate,
+		FromDate:        extractFromDate(data),
 		RetentionPeriod: *data.LogSpaceSpec.LokiConfig.RetentionPeriod,
 	}
-	configStr, err := generateConfig(cd)
+
+	configStr, err := utils.RenderConfTemplate("loki-conf", lokiConfig, cd)
 
 	if err != nil {
 		return corev1.ConfigMap{}, err
@@ -60,19 +49,12 @@ func lokiConfigMap(data Data) (corev1.ConfigMap, error) {
 	}, nil
 }
 
-func generateConfig(cd ConfigData) (string, error) {
-	tpl, err := template.New("loki").Parse(string(lokiConfig))
-	if err != nil {
-		return "", err
+func extractFromDate(data Data) string {
+	if data.LogSpaceSpec.LokiConfig.Schema != nil &&
+		data.LogSpaceSpec.LokiConfig.Schema.FromDate != nil {
+		return *data.LogSpaceSpec.LokiConfig.Schema.FromDate
 	}
 
-	var buf bytes.Buffer
-	err = tpl.Execute(&buf, cd)
-
-	if err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
-
+	currentTime := time.Now()
+	return currentTime.Format(time.DateOnly)
 }

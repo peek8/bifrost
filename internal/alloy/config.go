@@ -21,7 +21,14 @@ type ConfigData struct {
 	ClusterName string
 }
 
-func AlloyConfigMap(data Data, cd ConfigData) (corev1.ConfigMap, error) {
+func AlloyConfigMap(data Data) (corev1.ConfigMap, error) {
+	cd := ConfigData{
+		LokiService: data.LokiServiceName,
+		LokiPort:    3100,
+		Namespaces:  data.LogSpaceSpec.TargetNamespaces,
+		ClusterName: "default",
+	}
+
 	configStr, err := generateConfig(cd)
 
 	if err != nil {
@@ -40,7 +47,7 @@ func AlloyConfigMap(data Data, cd ConfigData) (corev1.ConfigMap, error) {
 }
 
 func generateConfig(cd ConfigData) (string, error) {
-	tpl, err := template.New("alloy").Funcs(funcMap).Parse(string(alloyConfig))
+	tpl, err := template.New("alloy").Funcs(funcMap).Parse(alloyConfig)
 	if err != nil {
 		return "", err
 	}

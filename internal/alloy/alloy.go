@@ -64,14 +64,7 @@ func (b Builder) New(ctx context.Context, data Data) (Alloy, error) {
 	role := *clusterRole(data)
 	sa := serviceAccount(data)
 
-	cd := ConfigData{
-		LokiService: data.LokiServiceName,
-		LokiPort:    3100,
-		Namespaces:  data.LogSpaceSpec.TargetNamespaces,
-		ClusterName: "default",
-	}
-
-	cm, err := AlloyConfigMap(data, cd)
+	cm, err := AlloyConfigMap(data)
 	if err != nil {
 		return Alloy{}, err
 	}

@@ -5,7 +5,7 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/json"
-	"html/template"
+	"text/template"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -33,8 +33,8 @@ func AlloyConfigMap(data Data, cd ConfigData) (corev1.ConfigMap, error) {
 			Name:      data.Name,
 			Namespace: data.Namespace,
 		},
-		BinaryData: map[string][]byte{
-			"config.alloy": []byte(configStr),
+		Data: map[string]string{
+			"config.alloy": configStr,
 		},
 	}, nil
 }

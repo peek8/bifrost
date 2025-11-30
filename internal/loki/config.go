@@ -22,6 +22,7 @@ import (
 var lokiConfig string
 
 type ConfigData struct {
+	StoragePath     string
 	FromDate        string
 	RetentionPeriod string
 }
@@ -37,6 +38,7 @@ func lokiConfigMap(data Data) (corev1.ConfigMap, error) {
 	}
 
 	cd := ConfigData{
+		StoragePath:     storagePath,
 		FromDate:        fromDate,
 		RetentionPeriod: *data.LogSpaceSpec.LokiConfig.RetentionPeriod,
 	}
@@ -51,8 +53,9 @@ func lokiConfigMap(data Data) (corev1.ConfigMap, error) {
 			Name:      data.Name,
 			Namespace: data.Namespace,
 		},
-		BinaryData: map[string][]byte{
-			configFile: []byte(configStr),
+
+		Data: map[string]string{
+			configFile: configStr,
 		},
 	}, nil
 }

@@ -4,12 +4,13 @@ metadata:
   labels:
     app.kubernetes.io/name: bifrost
     app.kubernetes.io/managed-by: kustomize
-  name: logspace-sample
+  name: sample
 spec:
   targetNamespaces:
     - asgard
     - midgard
-  pvc: 
+  pvc:
+    # For rancher k3s 
     storageClass: "local-path"
   collector:
     storage: 

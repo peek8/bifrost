@@ -21,6 +21,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
 )
 
 const (
@@ -38,19 +39,24 @@ const (
 )
 
 type Data struct {
-	Name         string
-	LogSpaceSpec v1alpha1.LogSpaceSpec
-	Namespace    string
+	Name            string
+	LogSpaceSpec    v1alpha1.LogSpaceSpec
+	Namespace       string
+	LokiServiceName string
 }
 
 type Grafana struct {
-	pvc        corev1.PersistentVolumeClaim
-	deployment appsv1.Deployment
-	service    corev1.Service
+	datasourceConfig corev1.ConfigMap
+	dashboardConfig  corev1.ConfigMap
+	pvc              corev1.PersistentVolumeClaim
+	deployment       appsv1.Deployment
+	service          corev1.Service
 }
 
 func (g Grafana) ToComponents() components.Components {
 	items := components.Components{
+		&components.ConfigMap{ConfigMap: g.datasourceConfig},
+		&components.ConfigMap{ConfigMap: g.dashboardConfig},
 		&components.PersistentVolumeClaim{PersistentVolumeClaim: g.pvc},
 		&components.Deployment{Deployment: g.deployment},
 		&components.Service{Service: g.service},
@@ -62,13 +68,39 @@ func (g Grafana) ToComponents() components.Components {
 type Builder struct{}
 
 func (b Builder) New(ctx context.Context, data Data) (Grafana, error) {
+	dsCM, err := grafanaDSConfigMap(data)
+	if err != nil {
+		return Grafana{}, err
+	}
+
+	dbCM, err := grafanaDashboardConfigMap(data)
+	if err != nil {
+		return Grafana{}, err
+	}
+
 	grafana := Grafana{
-		pvc:        factory.NewPVC(data.Name, data.Namespace, storageSize, data.LogSpaceSpec.PVCStorage.StorageClass),
-		deployment: deployment(data),
-		service:    service(data),
+		datasourceConfig: dsCM,
+		dashboardConfig:  dbCM,
+		pvc:              factory.NewPVC(data.Name, data.Namespace, storageSize, data.LogSpaceSpec.PVCStorage.StorageClass),
+		deployment:       deployment(data),
+		service:          service(data),
 	}
 
 	options := []utils.Option[corev1.PodTemplateSpec]{
+		utils.AddConfigMapAsVolume{
+			ConfigMapName: dsCM.Name,
+			VolumeName:    dsCM.Name,
+			MountPath:     grafanaDataSourceProvisioningDir,
+			ContainerName: primaryContainer,
+			Mode:          ptr.To(int32(0755)),
+		},
+		utils.AddConfigMapAsVolume{
+			ConfigMapName: dbCM.Name,
+			VolumeName:    dbCM.Name,
+			MountPath:     grafanaDashboardProvisioningDir,
+			ContainerName: primaryContainer,
+			Mode:          ptr.To(int32(0755)),
+		},
 		utils.AddPVC{
 			PVCName:       grafana.pvc.Name,
 			MountPath:     storagePath,
@@ -76,7 +108,7 @@ func (b Builder) New(ctx context.Context, data Data) (Grafana, error) {
 		},
 	}
 
-	err := utils.ApplyAll(&grafana.deployment.Spec.Template, options...)
+	err = utils.ApplyAll(&grafana.deployment.Spec.Template, options...)
 
 	if err != nil {
 		return Grafana{}, err

@@ -1,0 +1,10 @@
+apiVersion: 1
+
+datasources:
+  - name: {{.Name}}
+    type: loki
+    access: proxy
+    url: http://{{.LokiService}}:3100
+    jsonData:
+      timeout: 60
+      maxLines: 1000

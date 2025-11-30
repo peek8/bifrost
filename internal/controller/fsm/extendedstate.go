@@ -59,3 +59,11 @@ type ExtendedState struct {
 	LokiBuilder    components.Builder[loki.Loki, loki.Data]
 	GrafanaBuilder components.Builder[grafana.Grafana, grafana.Data]
 }
+
+func (st ExtendedState) GetLokiServiceName() string {
+	if st.Instance == nil {
+		return ""
+	}
+
+	return st.Instance.Name + "-loki"
+}

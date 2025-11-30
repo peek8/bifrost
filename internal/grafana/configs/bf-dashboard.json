@@ -1,0 +1,60 @@
+{
+  "title": "Bifrost {{.Name}} Logs",
+  "uid": "13cc9a38-c51b-4de9-915e-8a11c267dd4e",
+  "timezone": "browser",
+  "editable": true,
+  "panels": [
+    {
+      "id": 1,
+      "type": "logs",
+      "title": "Loki Logs",
+      "datasource": "{{.Datasource}}",
+      "gridPos": { "h": 16, "w": 21, "x": 0, "y": 0 },
+      "options": {
+        "sortOrder": "Descending",
+        "enableLogDetails": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "{{.Datasource}}",
+          "expr": "{cluster=\"default\", namespace=~\"$Namespace\", app=~\"$App\"} |= `$text_filter`",
+          "queryType": "range",
+          "direction": "backward"
+        }
+      ]
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "type": "textbox",
+        "name": "text_filter"
+      },
+      {
+        "type": "query",
+        "name": "Namespace",
+        "includeAll": true,
+        "multi": true,
+        "query": {
+          "type": 1,
+          "label": "namespace"
+        }
+      },
+      {
+        "type": "query",
+        "name": "App",
+        "includeAll": true,
+        "multi": true,
+        "query": {
+          "type": 1,
+          "label": "app"
+        }
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  }
+}

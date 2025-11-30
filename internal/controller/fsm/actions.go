@@ -231,9 +231,10 @@ func (fsm *BifrostOperator) GenerateAlloyAction(_ ...string) error {
 // +vectorsigma:action:GenerateGrafana
 func (fsm *BifrostOperator) GenerateGrafanaAction(_ ...string) error {
 	grafana, err := fsm.ExtendedState.GrafanaBuilder.New(fsm.Context.Ctx, grafana.Data{
-		Name:         fsm.ExtendedState.Instance.Name + "-grafana",
-		LogSpaceSpec: fsm.ExtendedState.Instance.Spec,
-		Namespace:    fsm.ExtendedState.Instance.Namespace,
+		Name:            fsm.ExtendedState.Instance.Name + "-grafana",
+		LogSpaceSpec:    fsm.ExtendedState.Instance.Spec,
+		Namespace:       fsm.ExtendedState.Instance.Namespace,
+		LokiServiceName: fsm.ExtendedState.GetLokiServiceName(),
 	})
 
 	if err != nil {

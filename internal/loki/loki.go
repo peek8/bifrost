@@ -73,7 +73,7 @@ func (b Builder) New(ctx context.Context, data Data) (Loki, error) {
 
 	loki := Loki{
 		config:      cm,
-		pvc:         factory.NewPVC(data.Name, data.Namespace, data.LogSpaceSpec.LokiConfig.Storage.Size, data.LogSpaceSpec.PVCStorage.StorageClass),
+		pvc:         factory.NewPVC(data.Name + "-data", data.Namespace, data.LogSpaceSpec.LokiConfig.Storage.Size, data.LogSpaceSpec.PVCStorage.StorageClass),
 		statefulSet: statefulSet(data),
 		service:     service(data),
 	}

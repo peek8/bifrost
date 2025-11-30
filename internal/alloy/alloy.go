@@ -72,7 +72,7 @@ func (b Builder) New(ctx context.Context, data Data) (Alloy, error) {
 	alloy := Alloy{
 		daemonSet:      daemonSet(data),
 		config:         cm,
-		pvc:            factory.NewPVC(data.Name, data.Namespace, data.LogSpaceSpec.Collector.Storage.Size, data.LogSpaceSpec.PVCStorage.StorageClass),
+		pvc:            factory.NewPVC(data.Name+"-data", data.Namespace, data.LogSpaceSpec.Collector.Storage.Size, data.LogSpaceSpec.PVCStorage.StorageClass),
 		serviceAccount: sa,
 		role:           role,
 		roleBinding:    clusterRoleBinding(data, role, sa),

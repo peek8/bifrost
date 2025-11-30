@@ -68,7 +68,7 @@ func grafanaDashboardConfigMap(data Data) (corev1.ConfigMap, error) {
 		Name       string
 		Datasource string
 	}{
-		Name:       data.Name + "-dashboard",
+		Name:       data.Name,
 		Datasource: lokiDataSourceName,
 	}
 	dashboard, err := utils.RenderConfTemplate("grafana-dash", grafanaDashboard, cd)
@@ -79,7 +79,7 @@ func grafanaDashboardConfigMap(data Data) (corev1.ConfigMap, error) {
 
 	return corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      data.Name,
+			Name:      data.Name + "-dashboard",
 			Namespace: data.Namespace,
 		},
 

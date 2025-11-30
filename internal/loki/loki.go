@@ -11,7 +11,6 @@ package loki
 
 import (
 	"context"
-	_ "embed"
 	"fmt"
 	"path"
 
@@ -25,9 +24,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/utils/ptr"
 )
-
-//go:embed loki-config.yaml
-var lokiConfig string
 
 const (
 	primaryContainer = "main"
@@ -68,9 +64,15 @@ func (lk Loki) ToComponents() components.Components {
 type Builder struct{}
 
 func (b Builder) New(ctx context.Context, data Data) (Loki, error) {
+	cm, err := lokiConfigMap(data)
+
+	if err != nil {
+		return Loki{}, err
+	}
+
 	loki := Loki{
-		config:      lokiConfigMap(data),
-		pvc:         factory.NewPVC(data.Name, data.Namespace, storageSize, data.LogSpaceSpec.PVCStorage.StorageClass),
+		config:      cm,
+		pvc:         factory.NewPVC(data.Name, data.Namespace, data.LogSpaceSpec.LokiConfig.Storage.Size, data.LogSpaceSpec.PVCStorage.StorageClass),
 		statefulSet: statefulSet(data),
 		service:     service(data),
 	}
@@ -90,7 +92,7 @@ func (b Builder) New(ctx context.Context, data Data) (Loki, error) {
 		},
 	}
 
-	err := utils.ApplyAll(&loki.statefulSet.Spec.Template, options...)
+	err = utils.ApplyAll(&loki.statefulSet.Spec.Template, options...)
 
 	if err != nil {
 		return Loki{}, err
@@ -123,18 +125,6 @@ func statefulSet(data Data) appsv1.StatefulSet {
 	return *factory.NewStatefulSet(data.Name, data.Namespace, container).
 		WithLabels(factory.K8sLabels(data.Name, "loki")).
 		Get()
-}
-
-func lokiConfigMap(data Data) corev1.ConfigMap {
-	return corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      data.Name,
-			Namespace: data.Namespace,
-		},
-		BinaryData: map[string][]byte{
-			configFile: []byte(lokiConfig),
-		},
-	}
 }
 
 func service(d Data) corev1.Service {

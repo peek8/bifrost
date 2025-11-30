@@ -214,9 +214,10 @@ func (fsm *BifrostOperator) DoneWithComponentAction(_ ...string) error {
 // +vectorsigma:action:GenerateAlloy
 func (fsm *BifrostOperator) GenerateAlloyAction(_ ...string) error {
 	alloy, err := fsm.ExtendedState.AlloyBuilder.New(fsm.Context.Ctx, alloy.Data{
-		Name:         fsm.ExtendedState.Instance.Name + "-alloy",
-		LogSpaceSpec: fsm.ExtendedState.Instance.Spec,
-		Namespace:    fsm.ExtendedState.Instance.Namespace,
+		Name:            fsm.ExtendedState.Instance.Name + "-alloy",
+		LogSpaceSpec:    fsm.ExtendedState.Instance.Spec,
+		Namespace:       fsm.ExtendedState.Instance.Namespace,
+		LokiServiceName: fsm.ExtendedState.GetLokiServiceName(),
 	})
 
 	if err != nil {
@@ -249,9 +250,10 @@ func (fsm *BifrostOperator) GenerateGrafanaAction(_ ...string) error {
 // +vectorsigma:action:GenerateLoki
 func (fsm *BifrostOperator) GenerateLokiAction(_ ...string) error {
 	loki, err := fsm.ExtendedState.LokiBuilder.New(fsm.Context.Ctx, loki.Data{
-		Name:         fsm.ExtendedState.Instance.Name + "-loki",
-		LogSpaceSpec: fsm.ExtendedState.Instance.Spec,
-		Namespace:    fsm.ExtendedState.Instance.Namespace,
+		Name:            fsm.ExtendedState.Instance.Name + "-loki",
+		LogSpaceSpec:    fsm.ExtendedState.Instance.Spec,
+		Namespace:       fsm.ExtendedState.Instance.Namespace,
+		LokiServiceName: fsm.ExtendedState.GetLokiServiceName(),
 	})
 	if err != nil {
 		return err

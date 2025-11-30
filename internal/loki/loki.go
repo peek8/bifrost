@@ -38,9 +38,10 @@ const (
 )
 
 type Data struct {
-	Name         string
-	LogSpaceSpec v1alpha1.LogSpaceSpec
-	Namespace    string
+	Name            string
+	LogSpaceSpec    v1alpha1.LogSpaceSpec
+	Namespace       string
+	LokiServiceName string
 }
 
 type Loki struct {
@@ -130,8 +131,7 @@ func statefulSet(data Data) appsv1.StatefulSet {
 func service(d Data) corev1.Service {
 	return corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			// TODO: for now hardcoded to loki
-			Name:      "loki",
+			Name:      d.LokiServiceName,
 			Namespace: d.Namespace,
 		},
 		Spec: corev1.ServiceSpec{

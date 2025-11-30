@@ -29,9 +29,10 @@ const (
 )
 
 type Data struct {
-	Name         string
-	LogSpaceSpec v1alpha1.LogSpaceSpec
-	Namespace    string
+	Name            string
+	LogSpaceSpec    v1alpha1.LogSpaceSpec
+	Namespace       string
+	LokiServiceName string
 }
 
 type Alloy struct {
@@ -64,7 +65,7 @@ func (b Builder) New(ctx context.Context, data Data) (Alloy, error) {
 	sa := serviceAccount(data)
 
 	cd := ConfigData{
-		LokiService: "loki",
+		LokiService: data.LokiServiceName,
 		LokiPort:    3100,
 		Namespaces:  data.LogSpaceSpec.TargetNamespaces,
 		ClusterName: "default",

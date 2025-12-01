@@ -18,6 +18,9 @@ spec:
   loki:
     storage: 
       size: "5Gi"
+  grafana:
+    storage: 
+      size: "5Gi"    
 
 
 

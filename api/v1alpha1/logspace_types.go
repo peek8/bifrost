@@ -32,6 +32,9 @@ type LogSpaceSpec struct {
 
 	// Configuration for Loki
 	LokiConfig *LokiConfig `json:"loki,omitempty"`
+
+	// Configuration for grafana
+	GrafanaConfig *GrafanaConfig `json:"grafana,omitempty"`
 }
 
 type PVCStorageConfig struct {
@@ -60,6 +63,11 @@ type LokiConfig struct {
 	// Schema Configuration for loki
 	//+optional
 	Schema *LokiSchemaConfig `json:"schema,omitempty"`
+}
+
+type GrafanaConfig struct {
+	// Storage Configuration for loki
+	Storage *StorageConfig `json:"storage,omitempty"`
 }
 
 type CollectorSpec struct {

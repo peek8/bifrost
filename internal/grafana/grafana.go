@@ -81,7 +81,7 @@ func (b Builder) New(ctx context.Context, data Data) (Grafana, error) {
 	grafana := Grafana{
 		datasourceConfig: dsCM,
 		dashboardConfig:  dbCM,
-		pvc:              factory.NewPVC(data.Name + "-data", data.Namespace, storageSize, data.LogSpaceSpec.PVCStorage.StorageClass),
+		pvc:              factory.NewPVC(data.Name+"-data", data.Namespace, data.LogSpaceSpec.GrafanaConfig.Storage.Size, data.LogSpaceSpec.PVCStorage.StorageClass),
 		deployment:       deployment(data),
 		service:          service(data),
 	}

@@ -30,6 +30,7 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/certwatcher"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -47,11 +48,27 @@ var (
 	setupLog = ctrl.Log.WithName("setup")
 )
 
+const (
+	defaultNamespace     = "bifrost"
+	watchNamespaceEnvVar = "BIFROST_NAMESPACE"
+	AllNamespaces        = "ALL"
+)
+
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(bifrostv1alpha1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
+}
+
+// getWatchNamespace returns the Namespace the operator should be watching for changes.
+func getWatchNamespace() string {
+	ns, found := os.LookupEnv(watchNamespaceEnvVar)
+	if !found {
+		return defaultNamespace
+	}
+
+	return ns
 }
 
 // nolint:gocyclo
@@ -178,6 +195,17 @@ func main() {
 		})
 	}
 
+	watchNamespace := getWatchNamespace()
+	nsOptions := cache.Options{}
+
+	if watchNamespace != AllNamespaces {
+		nsOptions = cache.Options{
+			DefaultNamespaces: map[string]cache.Config{
+				watchNamespace: {},
+			},
+		}
+	}
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		Metrics:                metricsServerOptions,
@@ -185,6 +213,7 @@ func main() {
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "f570a375.peek8.io",
+		Cache:                  nsOptions,
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly

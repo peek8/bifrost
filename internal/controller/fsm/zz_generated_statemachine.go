@@ -435,8 +435,8 @@ func New() *BifrostOperator {
 		Transitions: map[int]StateName{
 			0: GeneratingLokiComponents,
 			1: GeneratingGrafanaComponents,
-			2: EndingWave,
-			3: Closing,
+			2: Closing,
+			3: EndingWave,
 		},
 		Composite: CompositeState{
 			InitialState: InitialState,

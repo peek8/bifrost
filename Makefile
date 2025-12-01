@@ -53,7 +53,7 @@ PLANTUML_VERSION = 1.2025.10
 
 JAVA?=$(shell which java)
 # Image URL to use all building/pushing image targets
-IMG ?= bifrost:latest
+IMG ?= ghcr.io/peek8/bifrost:latest
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -109,6 +109,7 @@ fmt: ## Run go fmt against code.
 
 .PHONY: vet
 vet: fmt ## Run go vet against code.
+	go mod tidy
 	go vet ./...
 
 .PHONY: test
@@ -196,9 +197,9 @@ docker-buildx: ## Build and push docker image for the manager for cross-platform
 
 .PHONY: build-installer
 build-installer: manifests generate kustomize ## Generate a consolidated YAML with CRDs and deployment.
-	mkdir -p dist
+	mkdir -p installations
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default > dist/install.yaml
+	$(KUSTOMIZE) build config/default > installations/install.yaml
 
 ##@ Deployment
 

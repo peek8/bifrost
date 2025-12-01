@@ -536,7 +536,7 @@ spec:
         - --health-probe-bind-address=:8081
         command:
         - /manager
-        image: bifrost:latest
+        image: ghcr.io/peek8/bifrost:latest
         livenessProbe:
           httpGet:
             path: /healthz

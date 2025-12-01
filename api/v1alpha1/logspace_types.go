@@ -144,8 +144,8 @@ type LogSpaceStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:shortName=ls,scope=Namespaced
-//+kubebuilder:printcolumn:name="State",type=string,JSONPath=`.status.state`
-//+kubebuilder:printcolumn:name="Namespaces",type=string,JSONPath=`.status.observedNamespaces`
+//+kubebuilder:printcolumn:name="State",type=string,JSONPath=`.status.phase`
+////+kubebuilder:printcolumn:name="Namespaces",type=string,JSONPath=`.status.observedNamespaces`
 //+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 
 // LogSpace is the Schema for the logspaces API.

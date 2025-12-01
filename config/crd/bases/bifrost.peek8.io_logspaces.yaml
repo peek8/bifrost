@@ -17,11 +17,8 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .status.state
+    - jsonPath: .status.phase
       name: State
-      type: string
-    - jsonPath: .status.observedNamespaces
-      name: Namespaces
       type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age

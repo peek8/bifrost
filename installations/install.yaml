@@ -25,11 +25,8 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .status.state
+    - jsonPath: .status.phase
       name: State
-      type: string
-    - jsonPath: .status.observedNamespaces
-      name: Namespaces
       type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age
@@ -347,6 +344,8 @@ rules:
   - ""
   resources:
   - namespaces
+  - pods
+  - pods/log
   verbs:
   - get
   - list
@@ -354,7 +353,9 @@ rules:
 - apiGroups:
   - apps
   resources:
+  - daemonsets
   - deployments
+  - statefulsets
   verbs:
   - create
   - delete
@@ -403,6 +404,8 @@ rules:
 - apiGroups:
   - rbac.authorization.k8s.io
   resources:
+  - clusterrolebindings
+  - clusterroles
   - rolebindings
   - roles
   verbs:
@@ -534,8 +537,6 @@ spec:
         - --metrics-bind-address=:8443
         - --leader-elect
         - --health-probe-bind-address=:8081
-        command:
-        - /manager
         image: ghcr.io/peek8/bifrost:latest
         livenessProbe:
           httpGet:
@@ -554,10 +555,10 @@ spec:
         resources:
           limits:
             cpu: 500m
-            memory: 128Mi
+            memory: 512Mi
           requests:
-            cpu: 10m
-            memory: 64Mi
+            cpu: 100m
+            memory: 128Mi
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:

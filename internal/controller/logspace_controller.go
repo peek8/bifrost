@@ -45,7 +45,12 @@ type LogSpaceReconciler struct {
 //+kubebuilder:rbac:groups=bifrost.peek8.io,resources=logspaces/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=bifrost.peek8.io,resources=logspaces/finalizers,verbs=update
 //+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles;rolebindings,verbs=create;update;delete;list;watch;get
+//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles;clusterrolebindings,verbs=create;update;delete;list;watch;get
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=apps,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="",resources=pods;namespaces,verbs=get;list;watch
+//+kubebuilder:rbac:groups="",resources=pods/log,verbs=get;list;watch
 //+kubebuilder:rbac:groups="",resources=secrets;configmaps;persistentvolumeclaims;services;serviceaccounts,verbs=create;update;delete;list;watch;get
 //+kubebuilder:rbac:groups="gateway.networking.k8s.io",resources=httproutes,verbs=create;update;delete;list;watch;get
 

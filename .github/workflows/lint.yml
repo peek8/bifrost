@@ -1,12 +1,13 @@
 name: Lint
 
-on:
-  push:
-    #branches:
-    #  - 'main'
-    tags:
-      - 'v*'
-  pull_request:
+on: workflow_dispatch
+# on:
+#   push:
+#     #branches:
+#     #  - 'main'
+#     tags:
+#       - 'v*'
+#   pull_request:
 
 jobs:
   lint:

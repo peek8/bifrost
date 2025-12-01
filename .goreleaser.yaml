@@ -1,0 +1,114 @@
+version: 2
+
+release:
+  # If set to auto, will mark the release as not ready for production in case there is an indicator for this in the
+  # tag e.g. v1.0.0-rc1 .If set to true, will mark the release as not ready for production.
+  prerelease: true
+
+  # If set to true, will not auto-publish the release. This is done to allow us to review the changelog before publishing.
+  draft: false
+
+project_name: bifrost
+
+env:
+  # required to support multi architecture docker builds
+  - DOCKER_CLI_EXPERIMENTAL=enabled
+  - CGO_ENABLED=0
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: bifrost
+    main: ./cmd
+    binary: bifrost
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+      - ppc64le
+    ldflags:
+      -w
+      -s
+      -extldflags '-static'
+
+# archives:
+#   - formats: [tar.gz]
+#     format_overrides:
+#       - goos: windows
+#         formats: [zip]
+
+dockers:
+  # ghcr.io amd64
+  - &ghcr_amd64
+    id: ghcr-amd64
+    ids:
+      - bifrost
+    use: buildx
+    goarch: amd64
+    image_templates:
+      - ghcr.io/peek8/bifrost:latest
+      - ghcr.io/peek8/bifrost:v{{.Version}}-amd64
+    build_flag_templates:
+      - "--build-arg=TARGETOS=linux"
+      - "--build-arg=TARGETARCH=amd64"
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.description=A Kubernetes operator that automatically gathers logs from multiple namespaces and deploys Loki + Grafana to provide a complete, self-managed log monitoring stack."
+      - "--label=org.opencontainers.image.url={{.GitURL}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.licenses=Apache 2.0"
+      - "--label=org.opencontainers.image.authors=Md. Asraful Haque"
+
+  # ghcr.io arm64
+  - &ghcr_arm64
+    id: ghcr-arm64
+    ids:
+      - bifrost
+    use: buildx
+    goarch: arm64
+    image_templates:
+      - ghcr.io/peek8/bifrost:v{{.Version}}-arm64
+    build_flag_templates:
+      - "--build-arg=TARGETOS=linux"
+      - "--build-arg=TARGETARCH=arm64"
+      - "--platform=linux/arm64/v8"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.description=A Kubernetes operator that automatically gathers logs from multiple namespaces and deploys Loki + Grafana to provide a complete, self-managed log monitoring stack."
+      - "--label=org.opencontainers.image.url={{.GitURL}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.licenses=Apache 2.0"
+      - "--label=org.opencontainers.image.authors=Md. Asraful Haque"
+
+
+docker_manifests:
+  # ghcr.io manifests
+  - name_template: ghcr.io/peek8/bifrost:latest
+    image_templates: &ghcr_images
+      - ghcr.io/peek8/bifrost:v{{.Version}}-amd64
+      - ghcr.io/peek8/bifrost:v{{.Version}}-arm64
+
+  - name_template: ghcr.io/peek8/bifrost:v{{.Major}}
+    image_templates: *ghcr_images
+
+  - name_template: ghcr.io/peek8/bifrost:v{{.Major}}.{{.Minor}}
+    image_templates: *ghcr_images
+
+  - name_template: ghcr.io/peek8/bifrost:v{{.Version}}
+    image_templates: *ghcr_images
+
+changelog:
+  sort: asc
+  use: github

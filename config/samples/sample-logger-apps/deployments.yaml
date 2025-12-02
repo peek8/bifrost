@@ -1,0 +1,70 @@
+# api Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - image: mingrammer/flog
+        name: api
+        args:
+          - --loop
+          - --format=json
+          - --number=5 # number of log lines to generate per second
+          - --delay=100ms # delay between log lines
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - image: mingrammer/flog
+        name: frontend
+        args:
+          - --loop
+          - --format=json
+          - --number=5 # number of log lines to generate per second
+          - --delay=100ms # delay between log lines
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - image: mingrammer/flog
+        name: backend
+        args:
+          - --loop
+          - --format=json
+          - --number=5 # number of log lines to generate per second
+          - --delay=100ms # delay between log lines

@@ -1,5 +1,7 @@
 # Bifrost Operator — Zero-Effort Kubernetes Log Aggregation
 
+**_An open source project from [Peek8.io](https://peek8.io/)._** 
+
 **Bifrost** is a Kubernetes Operator that automatically deploys a full observability stack for logs — **Grafana Alloy → Loki → Grafana** — and wires everything up to collect logs from selected namespaces with no manual setup.
 
 Define which namespaces you want to monitor using the `LogSpace` CRD and Bifrost provisions **all required components, dashboards, datasources, storage, RBAC and configurations** in minutes.
@@ -187,6 +189,12 @@ Issues and PRs are most welcome! Whether it's docs, CRD spec improvements, code,
 ## License
 Apache 2.0, see more details at [LICENSE File](./LICENSE).
 
-## Support the project
-If Bifrost saves you hours of setup, consider giving the repository a ⭐.
+## Community
+Bifrost is a [Peek8](https://peek8.io/) open source project.
+Learn about our open source work and portfolio [here](https://peek8.io/#products).
+If you want to collaborate with us or Invest at [Peek8](https://peek8.io/), please [contact us here](https://peek8.io/#contact).
+
+Issues and PRs are most welcome! Whether it's docs, code improvement, or examples — contributions help the community.
+
+Last but not the least, If Bifrost saves you hours of setup, consider giving the repository a ⭐.
 Your support helps build a better developer-first observability ecosystem.

@@ -29,7 +29,7 @@ type Context struct {
 // being fetched and read. This should only be modified by actions, while guards
 // should only read the extended state to assess their value.
 type ExtendedState struct {
-	LastError    error
+	Error        error
 	Result       ctrl.Result
 	ResourceName types.NamespacedName
 	Instance     *bifrostv1alpha1.LogSpace

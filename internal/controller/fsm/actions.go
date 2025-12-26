@@ -23,7 +23,7 @@ func (fsm *BifrostOperator) ClearConditionAction(_ ...string) error {
 
 // +vectorsigma:action:ClearError
 func (fsm *BifrostOperator) ClearErrorAction(_ ...string) error {
-	fsm.ExtendedState.LastError = nil
+	fsm.ExtendedState.Error = nil
 
 	return nil
 }

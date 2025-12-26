@@ -26,7 +26,7 @@ func (fsm *BifrostOperator) HasFlagGuard(params ...string) bool {
 
 // +vectorsigma:guard:IsError
 func (fsm *BifrostOperator) IsErrorGuard(params ...string) bool {
-	if fsm.ExtendedState.LastError == nil {
+	if fsm.ExtendedState.Error == nil {
 		return false
 	}
 
@@ -34,7 +34,7 @@ func (fsm *BifrostOperator) IsErrorGuard(params ...string) bool {
 		return true
 	}
 
-	if strings.Contains(fsm.ExtendedState.LastError.Error(), params[0]) {
+	if strings.Contains(fsm.ExtendedState.Error.Error(), params[0]) {
 		return true
 	}
 

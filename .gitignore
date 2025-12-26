@@ -18,6 +18,7 @@ coverage.*
 *.coverprofile
 profile.cov
 
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
@@ -31,3 +32,6 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# OS
+.DS_Store

@@ -18,7 +18,7 @@ state Initializing {
     SubjectDoesNotExist --> [*]
 }
 
-Initializing --> [*] : [ IsError ]
+Initializing --> [*] : error
 Initializing --> [*] : [ MissingFlag(SubjectLoaded) ]
 Initializing --> GeneratingAlloyComponents
 
@@ -73,7 +73,7 @@ state SyncingWave {
 }
 SyncingWave --> GeneratingLokiComponents: [ WasWave(Alloy) ]
 SyncingWave --> GeneratingGrafanaComponents: [ WasWave(Loki) ]
-SyncingWave -[dotted]-> Closing: [ IsError ]
+SyncingWave -[dotted]-> Closing: error
 SyncingWave -[bold]-> EndingWave
 
 EndingWave: do / SetWave(Done)
